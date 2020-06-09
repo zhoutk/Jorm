@@ -27,7 +27,7 @@ Sqlit3Db::~Sqlit3Db()
 Document Sqlit3Db::retrieve(string tablename, Document* params, vector<string> fields)
 {
 	sqlite3* db = getHandle();
-	string querySql = "select * from users";
+	string querySql = "select username,password from users";
 	Document rs = ExecQuerySql(querySql);
 	return rs;
 }
@@ -37,7 +37,7 @@ Document Sqlit3Db::ExecQuerySql(string aQuery) {
 	rs.Parse("{}");
 	sqlite3_stmt* stmt = NULL;
 	sqlite3* handle = getHandle();
-	const int ret = sqlite3_prepare_v2(handle, aQuery.c_str(), static_cast<int>(aQuery.size()), &stmt, NULL);
+	const int ret = 0;// sqlite3_prepare_v2(handle, aQuery.c_str(), static_cast<int>(aQuery.size()), &stmt, NULL);
 	if (SQLITE_OK != ret)
 	{
 		Value code("801");
@@ -46,12 +46,25 @@ Document Sqlit3Db::ExecQuerySql(string aQuery) {
 	else {
 		Value code("200");
 		rs.AddMember("code", code, rs.GetAllocator());
-		while (sqlite3_step(stmt) == SQLITE_ROW) {
+		char** pRes = NULL;
+		int nRow = 0, nCol = 0;
+		char* pErr = NULL;
+		sqlite3_get_table(handle, aQuery.c_str(), &pRes, &nRow, &nCol, &pErr);
+		for (int i = 0; i <= nRow; i++)
+		{
+			for (int j = 0; j < nCol; j++)
+			{
+				char* pv = *(pRes + nCol * i + j);
+				cout << pv << endl;
+			}
+		}
+
+		/*while (sqlite3_step(stmt) == SQLITE_ROW) {
 			const int id = sqlite3_column_int(stmt, 0);
 			const unsigned char* username = sqlite3_column_text(stmt, 1);
 			const unsigned char* password = sqlite3_column_text(stmt, 2);
 			std::clog << "id = " << id << ", username = " << username << ", password = " << password << endl;
-		}
+		}*/
 	}
 	return rs;
 }
