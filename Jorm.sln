@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Jorm", "Jorm\Jorm.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Idb", "Idb\Idb.vcxproj", "{E50DE6BC-1408-426A-BB52-31F6D315445D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sqlit3", "Sqlit3\Sqlit3.vcxproj", "{3303B4E5-FACA-4BA5-8E67-F879DE8FFE38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{E50DE6BC-1408-426A-BB52-31F6D315445D}.Debug|Win32.Build.0 = Debug|Win32
 		{E50DE6BC-1408-426A-BB52-31F6D315445D}.Release|Win32.ActiveCfg = Release|Win32
 		{E50DE6BC-1408-426A-BB52-31F6D315445D}.Release|Win32.Build.0 = Release|Win32
+		{3303B4E5-FACA-4BA5-8E67-F879DE8FFE38}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3303B4E5-FACA-4BA5-8E67-F879DE8FFE38}.Debug|Win32.Build.0 = Debug|Win32
+		{3303B4E5-FACA-4BA5-8E67-F879DE8FFE38}.Release|Win32.ActiveCfg = Release|Win32
+		{3303B4E5-FACA-4BA5-8E67-F879DE8FFE38}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
