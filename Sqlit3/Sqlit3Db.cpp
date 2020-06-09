@@ -1,14 +1,4 @@
 #include "Sqlit3Db.h"
-#include "Exception.h"
-
-namespace SQLite {
-
-	const int   OPEN_READONLY = SQLITE_OPEN_READONLY;
-	const int   OPEN_READWRITE = SQLITE_OPEN_READWRITE;
-	const int   OPEN_CREATE = SQLITE_OPEN_CREATE;
-	const int   OPEN_URI = SQLITE_OPEN_URI;
-
-	const int   OK = SQLITE_OK;
 
 	Sqlit3Db::Sqlit3Db(const char* apFilename,
 		const int aFlags,
@@ -21,7 +11,7 @@ namespace SQLite {
 		mSQLitePtr.reset(handle);
 		if (SQLITE_OK != ret)
 		{
-			throw SQLite::Exception(handle, ret);
+			throw "SQLite Error, return code: " + ret;
 		}
 		if (aBusyTimeoutMs > 0)
 		{
@@ -30,7 +20,11 @@ namespace SQLite {
 		}
 	}
 
-	Document Sqlit3Db::retrieve(string tablename, Document params, vector<string> fields)
+	Sqlit3Db::~Sqlit3Db()
+	{
+	}
+
+	Document Sqlit3Db::retrieve(string tablename, Document *params, vector<string> fields)
 	{
 		return Document();
 	}
@@ -47,4 +41,3 @@ namespace SQLite {
 		SQLITECPP_ASSERT(SQLITE_OK == ret, "database is locked");  // See SQLITECPP_ENABLE_ASSERT_HANDLER
 	}
 
-}

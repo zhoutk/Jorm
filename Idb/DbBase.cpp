@@ -1,10 +1,14 @@
 #include "DbBase.h"
 
-Document DbBase::retrieve(string tablename, Document params, vector<string> fields)
-{
-	Document obj;
-	obj.Parse("{}");
-	Value rs("200");
-	obj.AddMember("code", rs, obj.GetAllocator());
-	return obj;
-}
+	DbBase::~DbBase()
+	{
+		if (db) {
+			delete db;
+		}
+	}
+
+	Document DbBase::retrieve(string tablename, Document* params, vector<string> fields)
+	{
+		return db->retrieve(tablename, params, fields);
+	}
+

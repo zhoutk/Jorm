@@ -88,6 +88,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Idb\Idb.vcxproj">
+      <Project>{e50de6bc-1408-426a-bb52-31f6d315445d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Sqlit3\Sqlit3.vcxproj">
+      <Project>{3303b4e5-faca-4ba5-8e67-f879de8ffe38}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
