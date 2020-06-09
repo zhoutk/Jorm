@@ -6,7 +6,7 @@ Sqlit3Db::Sqlit3Db(const char* apFilename,
 	const char* apVfs) :
 	mFilename(apFilename)
 {
-	sqlite3* handle;
+	//sqlite3* handle;
 	const int ret = sqlite3_open_v2(apFilename, &mSQLitePtr, aFlags, apVfs);
 	//this->mSQLitePtr = handle;
 	if (SQLITE_OK != ret)

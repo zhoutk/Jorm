@@ -24,22 +24,22 @@ public:
 	Sqlit3Db(const std::string& aFilename,
 		const int          aFlags = OPEN_READONLY,
 		const int          aBusyTimeoutMs = 0,
-		const std::string& aVfs = "") {
-		Sqlit3Db(aFilename.c_str(), aFlags, aBusyTimeoutMs, aVfs.empty() ? nullptr : aVfs.c_str());
+		const std::string& aVfs = ""){
+		new (this)Sqlit3Db(aFilename.c_str(), aFlags, aBusyTimeoutMs, aVfs.empty() ? nullptr : aVfs.c_str());
 	};
 
 	~Sqlit3Db();
 
-	struct Deleter
-	{
-		void operator()(sqlite3* apSQLite);
-	};
+	//struct Deleter
+	//{
+	//	void operator()(sqlite3* apSQLite);
+	//};
 
 	Document retrieve(string tablename, Document* params, vector<string> fields = vector<string>());
 
 	sqlite3* getHandle()
 	{
-		return this->mSQLitePtr;
+		return mSQLitePtr;
 	}
 
 	void check(const int aRet)

@@ -1,14 +1,12 @@
 #pragma once
 #include "Idb.h"
-#include "../Sqlit3/Sqlit3Db.h"
+#include "Sqlit3Db.h"
 
 class DbBase
 {
 public:
-	DbBase(string connStr) : connStr(connStr), db(NULL) {
-		if (db == NULL) {
-			db = new Sqlit3Db(connStr);
-		}
+	DbBase(string connStr) : connStr(connStr) {
+		db = new Sqlit3Db(connStr);
 	};
 	~DbBase();
 
@@ -16,6 +14,6 @@ public:
 
 private:
 	string connStr;
-	Idb* db;
+	Idb * db;
 };
 
