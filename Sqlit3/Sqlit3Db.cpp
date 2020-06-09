@@ -6,9 +6,9 @@ Sqlit3Db::Sqlit3Db(const char* apFilename,
 	const char* apVfs) :
 	mFilename(apFilename)
 {
-	//sqlite3* handle;
-	const int ret = sqlite3_open_v2(apFilename, &mSQLitePtr, aFlags, apVfs);
-	//this->mSQLitePtr = handle;
+	sqlite3* handle;
+	const int ret = sqlite3_open_v2(apFilename, &handle, aFlags, apVfs);
+	mSQLitePtr.reset(handle);
 	if (SQLITE_OK != ret)
 	{
 		throw "SQLite Error, return code: " + ret;
@@ -47,23 +47,24 @@ Document Sqlit3Db::ExecQuerySql(string aQuery) {
 		Value code("200");
 		rs.AddMember("code", code, rs.GetAllocator());
 		while (sqlite3_step(stmt) == SQLITE_ROW) {
-			const unsigned char* username = sqlite3_column_text(stmt, 0);
-			const unsigned char* password = sqlite3_column_text(stmt, 1);
-			std::clog << "username = " << username << ", password = " << password;
+			const int id = sqlite3_column_int(stmt, 0);
+			const unsigned char* username = sqlite3_column_text(stmt, 1);
+			const unsigned char* password = sqlite3_column_text(stmt, 2);
+			std::clog << "id = " << id << ", username = " << username << ", password = " << password << endl;
 		}
 	}
 	return rs;
 }
 
-//void Sqlit3Db::Deleter::operator()(sqlite3* apSQLite)
-//{
-//	const int ret = sqlite3_close(apSQLite); // Calling sqlite3_close() with a nullptr argument is a harmless no-op.
-//
-//	// Avoid unreferenced variable warning when build in release mode
-//	(void)ret;
-//
-//	// Only case of error is SQLITE_BUSY: "database is locked" (some statements are not finalized)
-//	// Never throw an exception in a destructor :
-//	SQLITECPP_ASSERT(SQLITE_OK == ret, "database is locked");  // See SQLITECPP_ENABLE_ASSERT_HANDLER
-//}
+void Sqlit3Db::Deleter::operator()(sqlite3* apSQLite)
+{
+	const int ret = sqlite3_close(apSQLite); // Calling sqlite3_close() with a nullptr argument is a harmless no-op.
+
+	// Avoid unreferenced variable warning when build in release mode
+	(void)ret;
+
+	// Only case of error is SQLITE_BUSY: "database is locked" (some statements are not finalized)
+	// Never throw an exception in a destructor :
+	SQLITECPP_ASSERT(SQLITE_OK == ret, "database is locked");  // See SQLITECPP_ENABLE_ASSERT_HANDLER
+}
 

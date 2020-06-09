@@ -30,16 +30,16 @@ public:
 
 	~Sqlit3Db();
 
-	//struct Deleter
-	//{
-	//	void operator()(sqlite3* apSQLite);
-	//};
+	struct Deleter
+	{
+		void operator()(sqlite3* apSQLite);
+	};
 
 	Document retrieve(string tablename, Document* params, vector<string> fields = vector<string>());
 
 	sqlite3* getHandle()
 	{
-		return mSQLitePtr;
+		return mSQLitePtr.get();
 	}
 
 	void check(const int aRet)
@@ -55,7 +55,7 @@ private:
 
 private:
 	// TODO: perhaps switch to having Statement sharing a pointer to the Connexion
-	sqlite3* mSQLitePtr;   ///< Pointer to SQLite Database Connection Handle
+	std::unique_ptr<sqlite3, Deleter> mSQLitePtr;   ///< Pointer to SQLite Database Connection Handle
 	std::string mFilename;                          ///< UTF-8 filename used to open the database
 };
 
