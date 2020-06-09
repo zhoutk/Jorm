@@ -1,0 +1,10 @@
+Debug/
+Release/
+ReleaseD/
+.vs/
+ipch/
+*.sdf
+*.user
+*.opensdf
+*.suo
+**/GeneratedFiles/
