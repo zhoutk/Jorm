@@ -11,10 +11,10 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	DbBase db("D:\\codes\\Jorm\\Sqlit3\\db.db");
+	DbBase * db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
 	Document qObj;
 	qObj.Parse("{\"username\", \"john\"}");
-	Document rs = db.retrieve("users", &qObj);
+	Document rs = db->retrieve("users", &qObj);
 
 	StringBuffer strBuffer;
 	Writer<StringBuffer> writer(strBuffer);

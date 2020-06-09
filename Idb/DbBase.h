@@ -2,20 +2,20 @@
 #include "Idb.h"
 #include "../Sqlit3/Sqlit3Db.h"
 
-    class DbBase
-    {
-    public:
-        DbBase(string connStr) : connStr(connStr) {
-            if (!db) {
-                db = new Sqlit3Db(connStr);
-            }
-        };
-        ~DbBase();
+class DbBase
+{
+public:
+	DbBase(string connStr) : connStr(connStr), db(NULL) {
+		if (db == NULL) {
+			db = new Sqlit3Db(connStr);
+		}
+	};
+	~DbBase();
 
-        Document retrieve(string tablename, Document* params, vector<string> fields = vector<string>());
+	Document retrieve(string tablename, Document* params, vector<string> fields = vector<string>());
 
-    private:
-        string connStr;
-        Idb* db;
-    };
+private:
+	string connStr;
+	Idb* db;
+};
 
