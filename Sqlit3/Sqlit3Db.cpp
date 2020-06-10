@@ -27,34 +27,51 @@ Sqlit3Db::~Sqlit3Db()
 
 Document Sqlit3Db::retrieve(string tablename, rapidjson::Document& params, vector<string> fields)
 {
-	sqlite3* db = getHandle();
-	string querySql = "select ";// +" from users where id > 0";
-	if (fields.empty()) {
-		querySql.append("* ");
+	if (params.IsObject()) {
+		string querySql = "select ";
+		string where = "";
+		const string AndJoinStr = " and ";
+
+		if (fields.empty()) {
+			querySql.append("*");
+		}
+		else {
+			std::stringstream ss;
+			for (size_t i = 0; i < fields.size(); ++i)
+			{
+				if (i != 0)
+					ss << ",";
+				ss << fields[i];
+			}
+			querySql.append(ss.str());
+		}
+		querySql.append(" from ").append(tablename);
+
+		for (auto iter = params.MemberBegin(); iter != params.MemberEnd(); ++iter)
+		{
+			string k = (iter->name).GetString();
+			string v = (iter->value).GetString();
+			if (where.length() > 0) {
+				where.append(AndJoinStr);
+			}
+
+			where.append(k).append(" = '").append(v).append("'");
+		}
+		if(where.length() > 0)
+			querySql.append(" where ").append(where);
+		Document rs = ExecQuerySql(querySql, fields);
+		return rs;
 	}
 	else {
-		std::stringstream ss;
-		for (size_t i = 0; i < fields.size(); ++i)
-		{
-			if (i != 0)
-				ss << ",";
-			ss << fields[i];
-		}
-		querySql.append(ss.str());
+		Document rs;
+		rs.Parse("{}");
+		Value code("301");
+		rs.AddMember("code", code, rs.GetAllocator());
+		Value msg("params is not a legal Json Object.");
+		rs.AddMember("error", msg, rs.GetAllocator());
+		return rs;
 	}
-	querySql.append(" from ").append(tablename).append(" ");
-
-	bool flag = params.IsObject();
-
-	for (auto iter = params.MemberBegin(); iter != params.MemberEnd(); ++iter)
-	{
-		string k = (iter->name).GetString();
-		string v = (iter->value).GetString();
-		int dd = 2222;
-	}
-
-	Document rs = ExecQuerySql(querySql, fields);
-	return rs;
+	
 }
 
 Document Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
