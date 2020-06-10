@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Idb", "Idb\Idb.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sqlit3", "Sqlit3\Sqlit3.vcxproj", "{3303B4E5-FACA-4BA5-8E67-F879DE8FFE38}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "common\common.vcxproj", "{3D27A401-CC3A-4C93-8257-AAC63C14D47D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcxproj", "{1837AED1-6C18-4990-A313-412A2A5B6FED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +27,10 @@ Global
 		{3303B4E5-FACA-4BA5-8E67-F879DE8FFE38}.Debug|Win32.Build.0 = Debug|Win32
 		{3303B4E5-FACA-4BA5-8E67-F879DE8FFE38}.Release|Win32.ActiveCfg = Release|Win32
 		{3303B4E5-FACA-4BA5-8E67-F879DE8FFE38}.Release|Win32.Build.0 = Release|Win32
-		{3D27A401-CC3A-4C93-8257-AAC63C14D47D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{3D27A401-CC3A-4C93-8257-AAC63C14D47D}.Debug|Win32.Build.0 = Debug|Win32
-		{3D27A401-CC3A-4C93-8257-AAC63C14D47D}.Release|Win32.ActiveCfg = Release|Win32
-		{3D27A401-CC3A-4C93-8257-AAC63C14D47D}.Release|Win32.Build.0 = Release|Win32
+		{1837AED1-6C18-4990-A313-412A2A5B6FED}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1837AED1-6C18-4990-A313-412A2A5B6FED}.Debug|Win32.Build.0 = Debug|Win32
+		{1837AED1-6C18-4990-A313-412A2A5B6FED}.Release|Win32.ActiveCfg = Release|Win32
+		{1837AED1-6C18-4990-A313-412A2A5B6FED}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
