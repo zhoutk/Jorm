@@ -60,7 +60,7 @@ Document Sqlit3Db::retrieve(string tablename, rapidjson::Document& params, vecto
 			if(v_number)
 				where.append(k).append(" = ").append(v);
 			else
-				where.append(k).append(" = '").append(Utils::UnicodeToU8(v)).append("'");
+				where.append(k).append(" = '").append(v).append("'");
 		}
 		if(where.length() > 0)
 			querySql.append(" where ").append(where);
@@ -84,7 +84,8 @@ Document Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
 	rs.Parse("{}");
 	sqlite3_stmt* stmt = NULL;
 	sqlite3* handle = getHandle();
-	const int ret = sqlite3_prepare_v2(handle, aQuery.c_str(), static_cast<int>(aQuery.size()), &stmt, NULL);
+	string u8Query = Utils::UnicodeToU8(aQuery);
+	const int ret = sqlite3_prepare_v2(handle, u8Query.c_str(), static_cast<int>(u8Query.size()), &stmt, NULL);
 	if (SQLITE_OK != ret)
 	{
 		Value code("801");
@@ -98,11 +99,11 @@ Document Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
 		if (fields.empty()) {
 			int insertPot = aQuery.find("where");
 			insertPot = insertPot >= 0 ? insertPot : aQuery.length();
-			string aQueryLimit0 = aQuery.substr(0, insertPot).append(" limit 0");
+			string aQueryLimit0 = aQuery.substr(0, insertPot).append(" limit 1");
 			char** pRes = NULL;
 			int nRow = 0;
 			char* pErr = NULL;
-			sqlite3_get_table(handle, aQuery.c_str(), &pRes, &nRow, &nCol, &pErr);
+			sqlite3_get_table(handle, aQueryLimit0.c_str(), &pRes, &nRow, &nCol, &pErr);
 			for (int j = 0; j < nCol; j++)
 			{
 				fields.push_back(*(pRes + j));
@@ -147,7 +148,7 @@ Document Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
 		sqlite3_finalize(stmt);
 		rs.AddMember("data", arr, rs.GetAllocator());
 	}
-	cout << "SQL: " << Utils::U8ToUnicode((char*)(aQuery.c_str())) << endl;
+	cout << "SQL: " << aQuery << endl;
 	return rs;
 }
 
