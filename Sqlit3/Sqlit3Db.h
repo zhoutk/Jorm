@@ -51,7 +51,7 @@ public:
 	}
 
 private:
-	Document ExecQuerySql(string);
+	Document ExecQuerySql(string, vector<string> = vector<string>());
 
 private:
 	// TODO: perhaps switch to having Statement sharing a pointer to the Connexion

@@ -14,7 +14,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	DbBase * db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
 	Document qObj;
 	qObj.Parse("{\"username\", \"john\"}");
-	Document rs = db->retrieve("users", &qObj);
+	vector<string> fields;
+	fields.push_back("username");
+	fields.push_back("password");
+	Document rs = db->retrieve("users", &qObj, fields);
 
 	StringBuffer strBuffer;
 	Writer<StringBuffer> writer(strBuffer);
