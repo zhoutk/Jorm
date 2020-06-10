@@ -1,8 +1,23 @@
 #pragma once
 #include <windows.h>
+#include "rapidjson/document.h"
+#include <sstream>
 
 class Utils {
 public:
+	static void GetJsonValueAndType(Value& value, string* v, bool* v_number) {
+		if (value.IsInt() || value.IsInt64() || value.IsFloat() || value.IsDouble()) {
+			*v_number = true;
+			std::stringstream s;
+			s << value.GetInt();
+			*v = s.str();
+		}
+		else {
+			*v_number = false;
+			*v = value.GetString();
+		}
+	}
+
 	static char* U8ToUnicode(char* szU8)
 	{
 		//UTF8 to Unicode
@@ -23,8 +38,9 @@ public:
 		return m_char;
 	}
 
-	char* UnicodeToU8(wchar_t* wszString)
+	static char* UnicodeToU8(string str)
 	{
+		wchar_t* wszString = multiByteToWideChar(str);
 		// unicode to UTF8
 		//预转换，得到所需空间的大小，这次用的函数和上面名字相反
 		int u8Len = ::WideCharToMultiByte(CP_UTF8, NULL, wszString, wcslen(wszString), NULL, 0, NULL, NULL);
@@ -39,6 +55,17 @@ public:
 		return szU8;
 	}
 
+
+	static wchar_t* multiByteToWideChar(const string& pKey)
+	{
+		char* pCStrKey = (char *)pKey.c_str();
+		//第一次调用返回转换后的字符串长度，用于确认为wchar_t*开辟多大的内存空间
+		int pSize = MultiByteToWideChar(CP_OEMCP, 0, pCStrKey, strlen(pCStrKey) + 1, NULL, 0);
+		wchar_t* pWCStrKey = new wchar_t[pSize];
+		//第二次调用将单字节字符串转换成双字节字符串
+		MultiByteToWideChar(CP_OEMCP, 0, pCStrKey, strlen(pCStrKey) + 1, pWCStrKey, pSize);
+		return pWCStrKey;
+	}
 
 };
 

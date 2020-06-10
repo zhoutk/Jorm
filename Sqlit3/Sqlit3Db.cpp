@@ -50,12 +50,17 @@ Document Sqlit3Db::retrieve(string tablename, rapidjson::Document& params, vecto
 		for (auto iter = params.MemberBegin(); iter != params.MemberEnd(); ++iter)
 		{
 			string k = (iter->name).GetString();
-			string v = (iter->value).GetString();
+			string v;
+			bool v_number;
+			Utils::GetJsonValueAndType(iter->value, &v, &v_number);
 			if (where.length() > 0) {
 				where.append(AndJoinStr);
 			}
 
-			where.append(k).append(" = '").append(v).append("'");
+			if(v_number)
+				where.append(k).append(" = ").append(v);
+			else
+				where.append(k).append(" = '").append(Utils::UnicodeToU8(v)).append("'");
 		}
 		if(where.length() > 0)
 			querySql.append(" where ").append(where);
@@ -142,7 +147,7 @@ Document Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
 		sqlite3_finalize(stmt);
 		rs.AddMember("data", arr, rs.GetAllocator());
 	}
-	cout << "SQL: " << aQuery << endl;
+	cout << "SQL: " << Utils::U8ToUnicode((char*)(aQuery.c_str())) << endl;
 	return rs;
 }
 
