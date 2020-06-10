@@ -25,7 +25,7 @@ Sqlit3Db::~Sqlit3Db()
 {
 }
 
-Document Sqlit3Db::retrieve(string tablename, Document* params, vector<string> fields)
+Document Sqlit3Db::retrieve(string tablename, rapidjson::Document* params, vector<string> fields)
 {
 	sqlite3* db = getHandle();
 	string querySql = "select ";// +" from users where id > 0";
@@ -42,7 +42,17 @@ Document Sqlit3Db::retrieve(string tablename, Document* params, vector<string> f
 		}
 		querySql.append(ss.str());
 	}
-	querySql.append(" from users where id > 0");
+	querySql.append(" from ").append(tablename).append(" ");
+
+	bool flag = (*params).IsObject();
+
+	for (auto iter = (*params).MemberBegin(); iter != (*params).MemberEnd(); ++iter)
+	{
+		string k = (iter->name).GetString();
+		string v = (iter->value).GetString();
+		int dd = 2222;
+	}
+
 	Document rs = ExecQuerySql(querySql, fields);
 	return rs;
 }
@@ -112,6 +122,7 @@ Document Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
 			}
 			arr.PushBack(al, rs.GetAllocator());
 		}
+		sqlite3_finalize(stmt);
 		rs.AddMember("data", arr, rs.GetAllocator());
 	}
 	cout << "SQL: " << aQuery << endl;

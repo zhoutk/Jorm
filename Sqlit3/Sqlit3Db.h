@@ -36,7 +36,7 @@ public:
 		void operator()(sqlite3* apSQLite);
 	};
 
-	Document retrieve(string tablename, Document* params, vector<string> fields = vector<string>());
+	Document retrieve(string tablename, Document* params = NULL, vector<string> fields = vector<string>());
 
 	sqlite3* getHandle()
 	{
