@@ -12,10 +12,10 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	DbBase * db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
 	Document qObj;
-	qObj.Parse("{}");
+	qObj.Parse("{\"username\": \"john\"}");
 	string str[] = { "id","password", "username" };
 	vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
-	Document rs = db->retrieve("users"); //, &qObj, fields
+	Document rs = db->retrieve("users", qObj); //, &qObj, fields
 
 	StringBuffer strBuffer;
 	Writer<StringBuffer> writer(strBuffer);

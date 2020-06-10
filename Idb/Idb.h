@@ -11,6 +11,6 @@ using namespace rapidjson;
 class Idb
 {
 public:
-	virtual Document retrieve(string tablename, Document* params = NULL, vector<string> fields = vector<string>()) = 0;
+	virtual Document retrieve(string tablename, Document& params, vector<string> fields = vector<string>()) = 0;
 };
 

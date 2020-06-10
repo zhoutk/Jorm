@@ -25,7 +25,7 @@ Sqlit3Db::~Sqlit3Db()
 {
 }
 
-Document Sqlit3Db::retrieve(string tablename, rapidjson::Document* params, vector<string> fields)
+Document Sqlit3Db::retrieve(string tablename, rapidjson::Document& params, vector<string> fields)
 {
 	sqlite3* db = getHandle();
 	string querySql = "select ";// +" from users where id > 0";
@@ -44,9 +44,9 @@ Document Sqlit3Db::retrieve(string tablename, rapidjson::Document* params, vecto
 	}
 	querySql.append(" from ").append(tablename).append(" ");
 
-	bool flag = (*params).IsObject();
+	bool flag = params.IsObject();
 
-	for (auto iter = (*params).MemberBegin(); iter != (*params).MemberEnd(); ++iter)
+	for (auto iter = params.MemberBegin(); iter != params.MemberEnd(); ++iter)
 	{
 		string k = (iter->name).GetString();
 		string v = (iter->value).GetString();
