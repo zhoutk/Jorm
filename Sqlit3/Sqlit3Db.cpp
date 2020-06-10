@@ -1,5 +1,8 @@
 #include "Sqlit3Db.h"
 #include <sstream>
+#include <windows.h>
+
+static char* U8ToUnicode(char* szU8);
 
 Sqlit3Db::Sqlit3Db(const char* apFilename,
 	const int aFlags,
@@ -88,32 +91,61 @@ Document Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
 			Value al(kObjectType);
 			for (int j = 0; j < nCol; j++)
 			{
-				string v = (char *) sqlite3_column_text(stmt, j);
-				al.AddMember(StringRef(fields.at(j).c_str()), Value(v.c_str(), rs.GetAllocator()), rs.GetAllocator());
+				string* k = new string(fields.at(j));				//create a new string, because fields will be detached.
+				int nType = sqlite3_column_type(stmt, j);
+				if (nType == 1) {					//SQLITE_INTEGER
+					Value v(kNumberType);
+					v.SetInt(sqlite3_column_int(stmt, j));
+					al.AddMember(StringRef((*k).c_str()), v, rs.GetAllocator());
+				}
+				else if (nType == 2) {				//SQLITE_FLOAT
+					
+				}
+				else if (nType == 3) {				//SQLITE_TEXT
+					Value v(kStringType);
+					v.SetString(U8ToUnicode((char*)sqlite3_column_text(stmt, j)), rs.GetAllocator());
+					al.AddMember(StringRef((*k).c_str()), v, rs.GetAllocator());
+				}
+				else if (nType == 4) {				//SQLITE_BLOB
+
+				}
+				else if (nType == 5) {				//SQLITE_NULL
+
+				}
 			}
 			arr.PushBack(al, rs.GetAllocator());
 		}
 		rs.AddMember("data", arr, rs.GetAllocator());
 	}
-	StringBuffer strBuffer;
-	Writer<StringBuffer> writer(strBuffer);
-	rs.Accept(writer);
-
-	rs.Parse(strBuffer.GetString());
-
-	//cout << "the result is : " << strBuffer.GetString() << endl;
+	cout << "SQL: " << aQuery << endl;
 	return rs;
+}
+
+
+static char* U8ToUnicode(char* szU8)
+{
+	//UTF8 to Unicode
+	//预转换，得到所需空间的大小
+	int wcsLen = ::MultiByteToWideChar(CP_UTF8, NULL, szU8, strlen(szU8), NULL, 0);
+	//分配空间要给'\0'留个空间，MultiByteToWideChar不会给'\0'空间
+	wchar_t* wszString = new wchar_t[wcsLen + 1];
+	//转换
+	::MultiByteToWideChar(CP_UTF8, NULL, szU8, strlen(szU8), wszString, wcsLen);
+	//最后加上'\0'
+	wszString[wcsLen] = '\0';
+
+	char* m_char;
+	int len = WideCharToMultiByte(CP_ACP, 0, wszString, wcslen(wszString), NULL, 0, NULL, NULL);
+	m_char = new char[len + 1];
+	WideCharToMultiByte(CP_ACP, 0, wszString, wcslen(wszString), m_char, len, NULL, NULL);
+	m_char[len] = '\0';
+	return m_char;
 }
 
 void Sqlit3Db::Deleter::operator()(sqlite3* apSQLite)
 {
-	const int ret = sqlite3_close(apSQLite); // Calling sqlite3_close() with a nullptr argument is a harmless no-op.
-
-	// Avoid unreferenced variable warning when build in release mode
+	const int ret = sqlite3_close(apSQLite);
 	(void)ret;
-
-	// Only case of error is SQLITE_BUSY: "database is locked" (some statements are not finalized)
-	// Never throw an exception in a destructor :
-	SQLITECPP_ASSERT(SQLITE_OK == ret, "database is locked");  // See SQLITECPP_ENABLE_ASSERT_HANDLER
+	SQLITECPP_ASSERT(SQLITE_OK == ret, "database is locked"); 
 }
 

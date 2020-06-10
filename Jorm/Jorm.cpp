@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "Idb.h"
 #include "DbBase.h"
-#include <iostream>
 #include "rapidjson/document.h"
 
 using namespace std;
@@ -14,9 +13,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	DbBase * db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
 	Document qObj;
 	qObj.Parse("{\"username\", \"john\"}");
-	vector<string> fields;
-	fields.push_back("username");
-	fields.push_back("password");
+	string str[] = { "id","password", "username" };
+	vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
 	Document rs = db->retrieve("users", &qObj, fields);
 
 	StringBuffer strBuffer;
