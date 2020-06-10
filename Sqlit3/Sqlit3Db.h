@@ -1,6 +1,7 @@
 #pragma once
 #include "Idb.h"
 #include "sqlit3/sqlite3.h"
+#include "Utils.h"
 
 using namespace std;
 

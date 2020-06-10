@@ -1,8 +1,5 @@
 #include "Sqlit3Db.h"
 #include <sstream>
-#include <windows.h>
-
-static char* U8ToUnicode(char* szU8);
 
 Sqlit3Db::Sqlit3Db(const char* apFilename,
 	const int aFlags,
@@ -103,7 +100,7 @@ Document Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
 				}
 				else if (nType == 3) {				//SQLITE_TEXT
 					Value v(kStringType);
-					v.SetString(U8ToUnicode((char*)sqlite3_column_text(stmt, j)), rs.GetAllocator());
+					v.SetString(Utils::U8ToUnicode((char*)sqlite3_column_text(stmt, j)), rs.GetAllocator());
 					al.AddMember(StringRef((*k).c_str()), v, rs.GetAllocator());
 				}
 				else if (nType == 4) {				//SQLITE_BLOB
@@ -119,27 +116,6 @@ Document Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
 	}
 	cout << "SQL: " << aQuery << endl;
 	return rs;
-}
-
-
-static char* U8ToUnicode(char* szU8)
-{
-	//UTF8 to Unicode
-	//预转换，得到所需空间的大小
-	int wcsLen = ::MultiByteToWideChar(CP_UTF8, NULL, szU8, strlen(szU8), NULL, 0);
-	//分配空间要给'\0'留个空间，MultiByteToWideChar不会给'\0'空间
-	wchar_t* wszString = new wchar_t[wcsLen + 1];
-	//转换
-	::MultiByteToWideChar(CP_UTF8, NULL, szU8, strlen(szU8), wszString, wcsLen);
-	//最后加上'\0'
-	wszString[wcsLen] = '\0';
-
-	char* m_char;
-	int len = WideCharToMultiByte(CP_ACP, 0, wszString, wcslen(wszString), NULL, 0, NULL, NULL);
-	m_char = new char[len + 1];
-	WideCharToMultiByte(CP_ACP, 0, wszString, wcslen(wszString), m_char, len, NULL, NULL);
-	m_char[len] = '\0';
-	return m_char;
 }
 
 void Sqlit3Db::Deleter::operator()(sqlite3* apSQLite)
