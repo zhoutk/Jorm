@@ -11,7 +11,8 @@ using namespace std;
 int _tmain(int argc, _TCHAR* argv[])
 {
 	DbBase * db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
-	Rjson qObj("{\"id\": 1, \"password\":\"123\", \"username\":\"张三\"}");		//\"username\": \"john\"
+	//Rjson qObj("{\"id\": 1, \"password\":\"123\", \"username\":\"张三\"}");		//\"username\": \"john\"
+	Rjson qObj("{\"username\":\"张三\"}");		//\"username\": \"john\"
 	string str[] = { "id","password", "username" };
 	vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
 	Rjson rs = db->retrieve("users", qObj, fields);			//, &qObj, fields

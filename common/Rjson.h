@@ -13,15 +13,13 @@ class Rjson{
 
 public:
 	Rjson() {
-		Document obj;
-		obj.SetObject();
-		json = &obj;
+		json = new Document();
+		(*json).SetObject();
 	}
 
 	Rjson(char* jstr) {
-		Document obj;
-		obj.Parse(jstr);
-		json = &obj;
+		json = new Document();
+		(*json).Parse(jstr);
 	}
 
 	Rjson(string jstr) {
