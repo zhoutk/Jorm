@@ -94,6 +94,11 @@ public:
 		return strBuffer.GetString();
 	}
 
+	//~Rjson() {
+	//	if (json)
+	//		delete json;
+	//}
+
 private:
 	Document* json;
 };
