@@ -25,7 +25,7 @@ Sqlit3Db::~Sqlit3Db()
 {
 }
 
-Document Sqlit3Db::retrieve(string tablename, rapidjson::Document& params, vector<string> fields)
+Rjson Sqlit3Db::retrieve(string tablename, Rjson& params, vector<string> fields)
 {
 	if (params.IsObject()) {
 		string querySql = "select ";
@@ -47,53 +47,49 @@ Document Sqlit3Db::retrieve(string tablename, rapidjson::Document& params, vecto
 		}
 		querySql.append(" from ").append(tablename);
 
-		for (auto iter = params.MemberBegin(); iter != params.MemberEnd(); ++iter)
-		{
-			string k = (iter->name).GetString();
+		vector<string> allKeys = params.GetAllKeys();
+		int len = allKeys.size();
+		for (int i = 0; i < len; i++) {
+			string k = allKeys[i];
 			string v;
 			bool v_number;
-			Utils::GetJsonValueAndType(iter->value, &v, &v_number);
+			params.GetValueAndTypeByKey(k, &v, &v_number);
 			if (where.length() > 0) {
 				where.append(AndJoinStr);
 			}
 
-			if(v_number)
+			if (v_number)
 				where.append(k).append(" = ").append(v);
 			else
 				where.append(k).append(" = '").append(v).append("'");
 		}
+
 		if(where.length() > 0)
 			querySql.append(" where ").append(where);
-		Document rs = ExecQuerySql(querySql, fields);
+		Rjson rs = ExecQuerySql(querySql, fields);
 		return rs;
 	}
 	else {
-		Document rs;
-		rs.Parse("{}");
-		Value code("301");
-		rs.AddMember("code", code, rs.GetAllocator());
-		Value msg("params is not a legal Json Object.");
-		rs.AddMember("error", msg, rs.GetAllocator());
+		Rjson rs;
+		rs.AddValueInt("code", 301);
+		rs.AddValueString("error", "params is not a legal Json Object.");
 		return rs;
 	}
 	
 }
 
-Document Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
-	Document rs;
-	rs.Parse("{}");
+Rjson Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
+	Rjson rs;
 	sqlite3_stmt* stmt = NULL;
 	sqlite3* handle = getHandle();
 	string u8Query = Utils::UnicodeToU8(aQuery);
 	const int ret = sqlite3_prepare_v2(handle, u8Query.c_str(), static_cast<int>(u8Query.size()), &stmt, NULL);
 	if (SQLITE_OK != ret)
 	{
-		Value code("801");
-		rs.AddMember("code", code, rs.GetAllocator());
+		rs.AddValueInt("code", 801);
 	}
 	else {
-		Value code("200");
-		rs.AddMember("code", code, rs.GetAllocator());
+		rs.AddValueInt("code", 200);
 
 		int nCol = fields.size();
 		if (fields.empty()) {
@@ -115,26 +111,21 @@ Document Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
 			sqlite3_free_table(pRes);
 		}
 		
-		Value arr(kArrayType);
-		//Document::AllocatorType& allocator = rs.GetAllocator();
+		vector<Rjson> arr;
 		while (sqlite3_step(stmt) == SQLITE_ROW) {
-			Value al(kObjectType);
+			Rjson al;
 			for (int j = 0; j < nCol; j++)
 			{
-				string* k = new string(fields.at(j));				//create a new string, because fields will be detached.
+				string k = fields.at(j);
 				int nType = sqlite3_column_type(stmt, j);
 				if (nType == 1) {					//SQLITE_INTEGER
-					Value v(kNumberType);
-					v.SetInt(sqlite3_column_int(stmt, j));
-					al.AddMember(StringRef((*k).c_str()), v, rs.GetAllocator());
+					al.AddValueInt(k, sqlite3_column_int(stmt, j));
 				}
 				else if (nType == 2) {				//SQLITE_FLOAT
 					
 				}
 				else if (nType == 3) {				//SQLITE_TEXT
-					Value v(kStringType);
-					v.SetString(Utils::U8ToUnicode((char*)sqlite3_column_text(stmt, j)), rs.GetAllocator());
-					al.AddMember(StringRef((*k).c_str()), v, rs.GetAllocator());
+					al.AddValueString(k, Utils::U8ToUnicode((char*)sqlite3_column_text(stmt, j)));
 				}
 				else if (nType == 4) {				//SQLITE_BLOB
 
@@ -143,10 +134,10 @@ Document Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
 
 				}
 			}
-			arr.PushBack(al, rs.GetAllocator());
+			arr.push_back(al);
 		}
 		sqlite3_finalize(stmt);
-		rs.AddMember("data", arr, rs.GetAllocator());
+		rs.AddValueObjectArray("data", arr);
 	}
 	cout << "SQL: " << aQuery << endl;
 	return rs;

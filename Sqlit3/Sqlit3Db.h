@@ -36,7 +36,7 @@ public:
 		void operator()(sqlite3* apSQLite);
 	};
 
-	Document retrieve(string tablename, Document& params, vector<string> fields = vector<string>());
+	Rjson retrieve(string tablename, Rjson& params, vector<string> fields = vector<string>());
 
 	sqlite3* getHandle()
 	{
@@ -52,7 +52,7 @@ public:
 	}
 
 private:
-	Document ExecQuerySql(string, vector<string> = vector<string>());
+	Rjson ExecQuerySql(string, vector<string> = vector<string>());
 
 private:
 	// TODO: perhaps switch to having Statement sharing a pointer to the Connexion

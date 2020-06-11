@@ -10,7 +10,7 @@ public:
 	};
 	~DbBase();
 
-	Document retrieve(string tablename, Document& params, vector<string> fields = vector<string>());
+	Rjson retrieve(string tablename, Rjson& params, vector<string> fields = vector<string>());
 
 private:
 	string connStr;
