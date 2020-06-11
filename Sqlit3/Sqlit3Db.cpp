@@ -134,7 +134,7 @@ Rjson Sqlit3Db::ExecQuerySql(string aQuery, vector<string> fields) {
 
 				}
 			}
-			arr.push_back(al);
+			arr.push_back(Rjson(al));
 		}
 		sqlite3_finalize(stmt);
 		rs.AddValueObjectArray("data", arr);

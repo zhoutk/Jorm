@@ -26,6 +26,15 @@ public:
 		new (this)Rjson(jstr.c_str());
 	}
 
+	Rjson(const Rjson& origin) {
+		StringBuffer strBuffer;
+		Writer<StringBuffer> writer(strBuffer);
+		(origin.json)->Accept(writer);
+		Document* cp = new Document();
+		cp->Parse(strBuffer.GetString());
+		json = cp;
+	}
+
 	void AddValueInt(string k, int v) {
 		string* newK = new string(k);
 		Value aInt(kNumberType);
@@ -94,10 +103,10 @@ public:
 		return strBuffer.GetString();
 	}
 
-	//~Rjson() {
-	//	if (json)
-	//		delete json;
-	//}
+	~Rjson() {
+		if (json)
+			delete json;
+	}
 
 private:
 	Document* json;
