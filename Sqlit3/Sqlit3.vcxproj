@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{3303B4E5-FACA-4BA5-8E67-F879DE8FFE38}</ProjectGuid>
+    <ProjectGuid>{60529710-C08A-4213-A8B4-90D27E08C392}</ProjectGuid>
     <RootNamespace>Sqlit3</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -41,7 +41,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../thirds;../Idb;../common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Common/Rjson;../Common/Utils;../Common/Idb;../thirds;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -61,12 +61,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\thirds\sqlit3\sqlite3.c" />
-    <ClCompile Include="Sqlit3Db.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\thirds\sqlit3\sqlite3.h" />
     <ClInclude Include="Sqlit3Db.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\thirds\sqlit3\sqlite3.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

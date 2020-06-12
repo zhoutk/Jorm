@@ -49,12 +49,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../Sqlit3;../thirds;../Idb;../common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Sqlit3;../thirds;../common/Utils;../common/Rjson;../common/Idb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Idb.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Sqlit3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -89,11 +89,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Idb\Idb.vcxproj">
-      <Project>{e50de6bc-1408-426a-bb52-31f6d315445d}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\Sqlit3\Sqlit3.vcxproj">
-      <Project>{3303b4e5-faca-4ba5-8e67-f879de8ffe38}</Project>
+      <Project>{60529710-c08a-4213-a8b4-90d27e08c392}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

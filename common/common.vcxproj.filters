@@ -15,15 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Utils.h">
+    <ClInclude Include="Utils\Utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Rjson.h">
+    <ClInclude Include="Rjson\Rjson.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Idb\DbBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Idb\Idb.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="empty.cpp">
+    <ClCompile Include="Idb\Idb.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

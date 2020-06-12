@@ -8,9 +8,15 @@ public:
 	DbBase(string connStr) : connStr(connStr) {
 		db = new Sqlit3Db(connStr);
 	};
-	~DbBase();
+	~DbBase() {
+		if (db) {
+			delete db;
+		}
+	};
 
-	Rjson retrieve(string tablename, Rjson& params, vector<string> fields = vector<string>());
+	Rjson retrieve(string tablename, Rjson& params, vector<string> fields = vector<string>()) {
+		return db->retrieve(tablename, params, fields);
+	};
 
 private:
 	string connStr;
