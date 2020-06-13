@@ -29,12 +29,8 @@ public:
 	}
 
 	Rjson(const Rjson& origin) {
-		StringBuffer strBuffer;
-		Writer<StringBuffer> writer(strBuffer);
-		(origin.json)->Accept(writer);
-		Document* cp = new Document();
-		cp->Parse(strBuffer.GetString());
-		json = cp;
+		json = new Document();
+		json->CopyFrom(*(origin.json), json->GetAllocator());
 	}
 
 	Rjson ExtendObject(Rjson& obj) {
