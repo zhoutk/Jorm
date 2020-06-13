@@ -41,18 +41,15 @@ public:
 		Document* src = obj.GetOriginRapidJson();
 		for (auto iter = src->MemberBegin(); iter != src->MemberEnd(); ++iter)
 		{
+			Value vTmp;
 			if (json->HasMember(iter->name)) {
 				Value& v = (*json)[iter->name];
-				int ntype = iter->value.GetType();
-				if (ntype == kNumberType)
-					v.SetInt(iter->value.GetInt());
-				else {
-					string* newValue = new string(iter->value.GetString());
-					v.SetString(StringRef(newValue->c_str()));
-				}
+				vTmp.CopyFrom(iter->value, json->GetAllocator());
+				v = (Value&)std::move(vTmp);
 			}
 			else {
-				json->AddMember(iter->name, iter->value, json->GetAllocator());
+				vTmp.CopyFrom(iter->value, json->GetAllocator());
+				json->AddMember(iter->name, vTmp, json->GetAllocator());
 			}
 		}
 		return *(this);
