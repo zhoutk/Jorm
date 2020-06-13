@@ -121,7 +121,7 @@ public:
 
 private:
 	Rjson ExecQuerySql(string aQuery, vector<string> fields) {
-		Rjson rs;// = Utils::MakeJsonObjectForFuncReturn(STSUCCESS);
+		Rjson rs = Utils::MakeJsonObjectForFuncReturn(STSUCCESS);
 		sqlite3_stmt* stmt = NULL;
 		sqlite3* handle = getHandle();
 		string u8Query = Utils::UnicodeToU8(aQuery);
@@ -174,7 +174,7 @@ private:
 
 					}
 				}
-				arr.push_back(Rjson(al));
+				arr.push_back(al);
 			}
 			rs.AddValueObjectArray("data", arr);
 		}
