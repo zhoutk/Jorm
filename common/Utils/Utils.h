@@ -1,21 +1,16 @@
 #pragma once
 #include <windows.h>
-#include "rapidjson/document.h"
+#include "Rjson.h"
 #include <sstream>
+#include "GlobalConstants.h"
 
 class Utils {
 public:
-	static void GetJsonValueAndType(Value& value, string* v, bool* v_number) {
-		if (value.IsInt() || value.IsInt64() || value.IsFloat() || value.IsDouble()) {
-			*v_number = true;
-			std::stringstream s;
-			s << value.GetInt();
-			*v = s.str();
-		}
-		else {
-			*v_number = false;
-			*v = value.GetString();
-		}
+	static Rjson MakeJsonObjectForFuncReturn(StatusCodes code) {
+		Rjson rs;
+		rs.AddValueInt("code", code);
+		rs.AddValueString("msg", STCODEMESSAGES[code]);
+		return rs;
 	}
 
 	static char* U8ToUnicode(char* szU8)

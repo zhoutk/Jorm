@@ -14,6 +14,7 @@
     <ClInclude Include="Idb\DbBase.h" />
     <ClInclude Include="Idb\Idb.h" />
     <ClInclude Include="Rjson\Rjson.h" />
+    <ClInclude Include="Utils\GlobalConstants.h" />
     <ClInclude Include="Utils\Utils.h" />
   </ItemGroup>
   <ItemGroup>

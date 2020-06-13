@@ -2,6 +2,7 @@
 #include "Idb.h"
 #include "sqlit3/sqlite3.h"
 #include "Utils.h"
+#include "GlobalConstants.h"
 #include <sstream>
 
 using namespace std;
@@ -98,14 +99,10 @@ public:
 
 			if (where.length() > 0)
 				querySql.append(" where ").append(where);
-			Rjson rs = ExecQuerySql(querySql, fields);
-			return rs;
+			return ExecQuerySql(querySql, fields);
 		}
 		else {
-			Rjson rs;
-			rs.AddValueInt("code", 301);
-			rs.AddValueString("error", "params is not a legal Json Object.");
-			return rs;
+			return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
 		}
 	};
 
@@ -124,18 +121,16 @@ public:
 
 private:
 	Rjson ExecQuerySql(string aQuery, vector<string> fields) {
-		Rjson rs;
+		Rjson rs = Utils::MakeJsonObjectForFuncReturn(STSUCCESS);
 		sqlite3_stmt* stmt = NULL;
 		sqlite3* handle = getHandle();
 		string u8Query = Utils::UnicodeToU8(aQuery);
 		const int ret = sqlite3_prepare_v2(handle, u8Query.c_str(), static_cast<int>(u8Query.size()), &stmt, NULL);
 		if (SQLITE_OK != ret)
 		{
-			rs.AddValueInt("code", 801);
+			rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR));
 		}
 		else {
-			rs.AddValueInt("code", 200);
-
 			int nCol = fields.size();
 			if (fields.empty()) {
 				int insertPot = aQuery.find("where");
@@ -181,9 +176,9 @@ private:
 				}
 				arr.push_back(Rjson(al));
 			}
-			sqlite3_finalize(stmt);
 			rs.AddValueObjectArray("data", arr);
 		}
+		sqlite3_finalize(stmt);
 		cout << "SQL: " << aQuery << endl;
 		return rs;
 	}

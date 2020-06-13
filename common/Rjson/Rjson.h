@@ -9,7 +9,7 @@
 using namespace std;
 using namespace rapidjson;
 
-class Rjson{
+class Rjson {
 private:
 	Document* json;
 
@@ -35,6 +35,27 @@ public:
 		Document* cp = new Document();
 		cp->Parse(strBuffer.GetString());
 		json = cp;
+	}
+
+	Rjson ExtendObject(Rjson& obj) {
+		Document* src = obj.GetOriginRapidJson();
+		for (auto iter = src->MemberBegin(); iter != src->MemberEnd(); ++iter)
+		{
+			if (json->HasMember(iter->name)) {
+				Value& v = (*json)[iter->name];
+				int ntype = iter->value.GetType();
+				if (ntype == kNumberType)
+					v.SetInt(iter->value.GetInt());
+				else {
+					string* newValue = new string(iter->value.GetString());
+					v.SetString(StringRef(newValue->c_str()));
+				}
+			}
+			else {
+				json->AddMember(iter->name, iter->value, json->GetAllocator());
+			}
+		}
+		return *(this);
 	}
 
 	void AddValueInt(string k, int v) {
@@ -69,7 +90,7 @@ public:
 
 	void GetValueAndTypeByKey(string key, string* v, bool* v_number) {
 		Value& value = json->FindMember(key.c_str())->value;
-		if (value.IsInt() || value.IsInt64() || value.IsFloat() || value.IsDouble()) {
+		if (value.IsInt()) {
 			*v_number = true;
 			std::stringstream s;
 			s << value.GetInt();

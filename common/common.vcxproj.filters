@@ -27,6 +27,9 @@
     <ClInclude Include="Idb\Idb.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Utils\GlobalConstants.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Idb\Idb.cpp">
