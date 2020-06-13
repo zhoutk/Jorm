@@ -41,13 +41,13 @@ public:
 		Document* src = obj.GetOriginRapidJson();
 		for (auto iter = src->MemberBegin(); iter != src->MemberEnd(); ++iter)
 		{
-			Value vTmp;
 			if (json->HasMember(iter->name)) {
 				Value& v = (*json)[iter->name];
-				vTmp.CopyFrom(iter->value, json->GetAllocator());
-				v = (Value&)std::move(vTmp);
+				v.CopyFrom(iter->value, json->GetAllocator());
+				//v = (Value&)std::move(vTmp);
 			}
 			else {
+				Value vTmp;
 				vTmp.CopyFrom(iter->value, json->GetAllocator());
 				json->AddMember(iter->name, vTmp, json->GetAllocator());
 			}
