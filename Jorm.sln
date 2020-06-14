@@ -3,30 +3,51 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Jorm", "Jorm\Jorm.vcxproj", "{DDA1F230-84C3-4FCE-8605-13C22E1D8CE3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcxproj", "{1837AED1-6C18-4990-A313-412A2A5B6FED}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "common\Common.vcxproj", "{1837AED1-6C18-4990-A313-412A2A5B6FED}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sqlit3", "Sqlit3\Sqlit3.vcxproj", "{60529710-C08A-4213-A8B4-90D27E08C392}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitIdbTest", "UnitIdbTest\UnitIdbTest.vcxproj", "{DBE30FD7-7ABD-4BF8-B201-6D92BC1B40D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
 		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DDA1F230-84C3-4FCE-8605-13C22E1D8CE3}.Debug|Win32.ActiveCfg = Debug|Win32
 		{DDA1F230-84C3-4FCE-8605-13C22E1D8CE3}.Debug|Win32.Build.0 = Debug|Win32
+		{DDA1F230-84C3-4FCE-8605-13C22E1D8CE3}.Debug|x64.ActiveCfg = Debug|Win32
 		{DDA1F230-84C3-4FCE-8605-13C22E1D8CE3}.Release|Win32.ActiveCfg = Release|Win32
 		{DDA1F230-84C3-4FCE-8605-13C22E1D8CE3}.Release|Win32.Build.0 = Release|Win32
+		{DDA1F230-84C3-4FCE-8605-13C22E1D8CE3}.Release|x64.ActiveCfg = Release|Win32
 		{1837AED1-6C18-4990-A313-412A2A5B6FED}.Debug|Win32.ActiveCfg = Debug|Win32
 		{1837AED1-6C18-4990-A313-412A2A5B6FED}.Debug|Win32.Build.0 = Debug|Win32
+		{1837AED1-6C18-4990-A313-412A2A5B6FED}.Debug|x64.ActiveCfg = Debug|Win32
 		{1837AED1-6C18-4990-A313-412A2A5B6FED}.Release|Win32.ActiveCfg = Release|Win32
 		{1837AED1-6C18-4990-A313-412A2A5B6FED}.Release|Win32.Build.0 = Release|Win32
+		{1837AED1-6C18-4990-A313-412A2A5B6FED}.Release|x64.ActiveCfg = Release|Win32
 		{60529710-C08A-4213-A8B4-90D27E08C392}.Debug|Win32.ActiveCfg = Debug|Win32
 		{60529710-C08A-4213-A8B4-90D27E08C392}.Debug|Win32.Build.0 = Debug|Win32
+		{60529710-C08A-4213-A8B4-90D27E08C392}.Debug|x64.ActiveCfg = Debug|Win32
 		{60529710-C08A-4213-A8B4-90D27E08C392}.Release|Win32.ActiveCfg = Release|Win32
 		{60529710-C08A-4213-A8B4-90D27E08C392}.Release|Win32.Build.0 = Release|Win32
+		{60529710-C08A-4213-A8B4-90D27E08C392}.Release|x64.ActiveCfg = Release|Win32
+		{DBE30FD7-7ABD-4BF8-B201-6D92BC1B40D6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DBE30FD7-7ABD-4BF8-B201-6D92BC1B40D6}.Debug|Win32.Build.0 = Debug|Win32
+		{DBE30FD7-7ABD-4BF8-B201-6D92BC1B40D6}.Debug|x64.ActiveCfg = Debug|x64
+		{DBE30FD7-7ABD-4BF8-B201-6D92BC1B40D6}.Debug|x64.Build.0 = Debug|x64
+		{DBE30FD7-7ABD-4BF8-B201-6D92BC1B40D6}.Release|Win32.ActiveCfg = Release|Win32
+		{DBE30FD7-7ABD-4BF8-B201-6D92BC1B40D6}.Release|Win32.Build.0 = Release|Win32
+		{DBE30FD7-7ABD-4BF8-B201-6D92BC1B40D6}.Release|x64.ActiveCfg = Release|x64
+		{DBE30FD7-7ABD-4BF8-B201-6D92BC1B40D6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BCAD5302-121E-408E-ACAE-5AD4BB06DF70}
 	EndGlobalSection
 EndGlobal

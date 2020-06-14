@@ -1,6 +1,6 @@
 #pragma once
 #include "Idb.h"
-#include "Sqlit3Db.h"
+#include "../Sqlit3/Sqlit3Db.h"
 
 class DbBase
 {

@@ -1,8 +1,8 @@
 #pragma once
-#include "Idb.h"
-#include "sqlit3/sqlite3.h"
-#include "Utils.h"
-#include "GlobalConstants.h"
+#include "../common//Idb/Idb.h"
+#include "../thirds/sqlit3/sqlite3.h"
+#include "../common/Utils/Utils.h"
+#include "../common/Utils/GlobalConstants.h"
 #include <sstream>
 
 using namespace std;
@@ -176,6 +176,8 @@ private:
 				}
 				arr.push_back(al);
 			}
+			if(arr.empty())
+				rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STQUERYEMPTY));
 			rs.AddValueObjectArray("data", arr);
 		}
 		sqlite3_finalize(stmt);

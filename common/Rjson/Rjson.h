@@ -1,8 +1,8 @@
 #pragma once
 
-#include "rapidjson/document.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/writer.h"
+#include "../thirds/rapidjson/document.h"
+#include "../thirds/rapidjson/stringbuffer.h"
+#include "../thirds/rapidjson/writer.h"
 #include <vector>
 #include <sstream>
 
@@ -31,6 +31,21 @@ public:
 	Rjson(const Rjson& origin) {
 		json = new Document();
 		json->CopyFrom(*(origin.json), json->GetAllocator());
+	}
+
+	vector<Rjson> GetArrayByKey(string k) {
+		vector<Rjson> rs;
+		if (json->HasMember(k.c_str()) && (*json)[k.c_str()].IsArray()) {
+			Value& v = (*json)[k.c_str()];
+			size_t len = v.Size();
+			for (size_t i = 0; i < len; i++) {
+				Rjson al;
+				Value vv;
+				vv.CopyFrom(v[i], al.json->GetAllocator());
+				rs.push_back(al);
+			}
+		}
+		return rs;
 	}
 
 	Rjson ExtendObject(Rjson& obj) {
