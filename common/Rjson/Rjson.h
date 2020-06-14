@@ -33,6 +33,11 @@ public:
 		json->CopyFrom(*(origin.json), json->GetAllocator());
 	}
 
+	Rjson& operator = (const Rjson& origin) {
+		new (this)Rjson(origin);
+		return(*this);
+	}
+
 	vector<Rjson> GetArrayByKey(string k) {
 		vector<Rjson> rs;
 		if (json->HasMember(k.c_str()) && (*json)[k.c_str()].IsArray()) {
