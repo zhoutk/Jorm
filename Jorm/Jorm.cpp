@@ -15,9 +15,38 @@ int _tmain(int argc, _TCHAR* argv[])
 	Rjson qObj;		//("{")    \"username\": \"john\"    ("{\"username\":\"уехЩ\"}")
 	string str[] = { "id","password", "username" };
 	vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
-	Rjson rs = db->retrieve("users", qObj, fields);			//, &qObj, fields
+	Rjson rsa = db->retrieve("users", qObj, fields);			//, &qObj, fields
 
-	cout << "the result is : " << rs.GetJsonString() << endl;
+	//cout << "1111111 the result is : " << rsa.GetJsonString() << endl;
+
+	vector<string> keys = rsa.GetAllKeys();
+
+	int len = keys.size();
+	for (int i = 0; i < len; i++) {
+		string v, key = keys[i];
+		int vType;
+		rsa.GetValueAndTypeByKey(key, &v, &vType);
+		if (vType == 4) {
+			cout << "    " << key << " is array: " << endl;
+			cout << "-------------------------------------" << endl;
+			vector<Rjson> arr = rsa.GetArrayByKey(key);
+			for (int j = 0; j < arr.size(); j++) {
+				Rjson al = arr[j];
+				vector<string> subKeys = al.GetAllKeys();
+				for (int k = 0; k < subKeys.size(); k++) {
+					string sv;
+					int nstype;
+					al.GetValueAndTypeByKey(subKeys[k], &sv, &nstype);
+					cout << "    " << subKeys[k] << ", value: " << sv << endl;
+				}
+				cout << endl;
+			}
+			//cout << "-------------------------------------" << endl;
+		}else
+			cout << "key: " << key << ", value: " << v << endl;
+	}
+
+	//cout << "22222222 the result is : " << rsa.GetJsonString() << endl;
 
 	system("pause");
 	return 0;

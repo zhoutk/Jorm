@@ -5,6 +5,7 @@
 #include "../thirds/rapidjson/writer.h"
 #include <vector>
 #include <sstream>
+#include <iostream>
 
 using namespace std;
 using namespace rapidjson;
@@ -45,8 +46,13 @@ public:
 			size_t len = v.Size();
 			for (size_t i = 0; i < len; i++) {
 				Rjson al;
-				Value vv;
-				vv.CopyFrom(v[i], al.json->GetAllocator());
+				for (auto iter = v[i].MemberBegin(); iter != v[i].MemberEnd(); ++iter)
+				{
+					Value vv;
+					string *newK = new string(iter->name.GetString());
+					vv.CopyFrom(iter->value, al.json->GetAllocator());
+					al.json->AddMember(StringRef(newK->c_str()), vv, al.json->GetAllocator());
+				}
 				rs.push_back(al);
 			}
 		}
@@ -111,6 +117,28 @@ public:
 		}
 		else {
 			*v_number = false;
+			*v = value.GetString();
+		}
+	}
+
+	void GetValueAndTypeByKey(string key, string* v, int* vType) {
+		Value& value = json->FindMember(key.c_str())->value;
+		*vType = value.GetType();
+		if (value.IsInt()) {
+			std::stringstream s;
+			s << value.GetInt();
+			*v = s.str();
+		}
+		else if (value.IsArray()) {
+			//Value vArr;
+			//vArr.CopyFrom(value, json->GetAllocator());
+			//StringBuffer strBuffer;
+			//Writer<StringBuffer> writer(strBuffer);
+			//vArr.Accept(writer);
+			////string* tmp = new string(strBuffer.GetString());
+			//*v = strBuffer.GetString();
+		}
+		else {
 			*v = value.GetString();
 		}
 	}
