@@ -14,8 +14,8 @@ public:
 		}
 	};
 
-	Rjson retrieve(string tablename, Rjson& params, vector<string> fields = vector<string>()) {
-		return db->retrieve(tablename, params, fields);
+	Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>()) {
+		return db->select(tablename, params, fields);
 	};
 
 	Rjson create(string tablename, Rjson& params) {

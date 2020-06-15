@@ -20,7 +20,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	Rjson qObj;		//("{")    \"username\": \"john\"    ("{\"username\":\"уехЩ\"}")
 	string str[] = { "id","password", "username" };
 	vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
-	Rjson rsa = db->retrieve("users", qObj, fields);			//, &qObj, fields
+	Rjson rsa = db->select("users", qObj, fields);			//, &qObj, fields
 
 	//cout << "1111111 the result is : " << rsa.GetJsonString() << endl;
 

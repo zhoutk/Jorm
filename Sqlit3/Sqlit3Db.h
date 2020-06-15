@@ -91,7 +91,7 @@ public:
 		}
 	}
 
-	Rjson retrieve(string tablename, Rjson& params, vector<string> fields = vector<string>()) {
+	Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>()) {
 		if (params.IsObject()) {
 			string querySql = "select ";
 			string where = "";

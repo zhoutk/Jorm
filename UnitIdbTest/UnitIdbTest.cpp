@@ -15,7 +15,7 @@ namespace UnitIdbTest
 		{
 			DbBase* db = new DbBase(dbStr);
 			Rjson qObj;		
-			Rjson rs1 = db->retrieve("users", qObj);
+			Rjson rs1 = db->select("users", qObj);
 			string v1;
 			bool v_number1;
 			rs1.GetValueAndTypeByKey("code", &v1, &v_number1);
@@ -27,7 +27,7 @@ namespace UnitIdbTest
 			Rjson qObj;	
 			string str[] = { "id","password", "username" };
 			vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
-			Rjson rs = db->retrieve("users", qObj, fields);
+			Rjson rs = db->select("users", qObj, fields);
 
 			string v;
 			bool v_number;
@@ -38,7 +38,7 @@ namespace UnitIdbTest
 		{
 			DbBase* db = new DbBase(dbStr);
 			Rjson qObj("{\"username\":\"张三\"}");
-			Rjson rs = db->retrieve("users", qObj);
+			Rjson rs = db->select("users", qObj);
 
 			string v;
 			bool v_number;
@@ -51,7 +51,7 @@ namespace UnitIdbTest
 		{
 			DbBase* db = new DbBase(dbStr);
 			Rjson qObj("{\"username\":\"张三丰不存在\"}");
-			Rjson rs = db->retrieve("users", qObj);
+			Rjson rs = db->select("users", qObj);
 
 			string v;
 			bool v_number;
@@ -64,7 +64,7 @@ namespace UnitIdbTest
 		{
 			DbBase* db = new DbBase(dbStr);
 			Rjson qObj("{");
-			Rjson rs = db->retrieve("users", qObj);
+			Rjson rs = db->select("users", qObj);
 
 			string v;
 			bool v_number;
@@ -75,7 +75,7 @@ namespace UnitIdbTest
 		{
 			DbBase* db = new DbBase(dbStr);
 			Rjson qObj("{\"username1\":\"张三\"}");
-			Rjson rs = db->retrieve("users", qObj);
+			Rjson rs = db->select("users", qObj);
 
 			string v;
 			bool v_number;
