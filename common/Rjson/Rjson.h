@@ -20,7 +20,7 @@ public:
 		json->SetObject();
 	}
 
-	Rjson(char* jstr) {
+	Rjson(const char* jstr) {
 		json = new Document();
 		json->Parse(jstr);
 	}

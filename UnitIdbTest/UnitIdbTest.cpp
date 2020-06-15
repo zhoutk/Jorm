@@ -14,7 +14,7 @@ namespace UnitIdbTest
 		TEST_METHOD(TestDbQuerySelectStar)							//test select * from ...
 		{
 			DbBase* db = new DbBase(dbStr);
-			Rjson qObj;		
+			Rjson qObj;
 			Rjson rs1 = db->select("users", qObj);
 			string v1;
 			int vType;
@@ -24,7 +24,7 @@ namespace UnitIdbTest
 		TEST_METHOD(TestDbQuerySelectFields)						//test select id,..... from ...
 		{
 			DbBase* db = new DbBase(dbStr);
-			Rjson qObj;	
+			Rjson qObj;
 			string str[] = { "id","password", "username" };
 			vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
 			Rjson rs = db->select("users", qObj, fields);
@@ -103,8 +103,9 @@ namespace UnitIdbTest
 			v = "";
 			data0.GetValueAndTypeByKey("id", &v, &vType);
 
-			Rjson rData;
-			rData.AddValueInt("id", atoi(v.c_str()));
+			string sss = "{\"id\":" + v + "}";
+			Rjson rData(sss);
+			//rData.AddValueInt("id", atoi(v.c_str()));
 			rs = db->remove("users", rData);
 			v = "";
 			rs.GetValueAndTypeByKey("code", &v, &vType);
