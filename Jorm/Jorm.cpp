@@ -12,16 +12,16 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	DbBase * db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
 
-	Rjson qObjCreate("{\"id\":9}");
-	Rjson rs = db->remove("users", qObjCreate);
+	/*Rjson qObjCreate("{\"id\":9}");
+	Rjson rs = db->remove("users", qObjCreate);*/
 
 	//Rjson qObj("{\"id\": 1, \"password\":\"123\", \"username\":\"张三\"}");		//\"username\": \"john\"
 	Rjson qObj;		//("{")    \"username\": \"john\"    ("{\"username\":\"张三\"}")
-	string str[] = { "id","password", "username" };
+	string str[] = { "update_time" };
 	vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
 	Rjson rsa = db->select("users", qObj, fields);			//, &qObj, fields
 
-	//cout << "1111111 the result is : " << rsa.GetJsonString() << endl;
+	cout << "1111111 the result is : " << rsa.GetJsonString() << endl;
 
 	vector<string> keys = rsa.GetAllKeys();
 

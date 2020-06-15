@@ -4,6 +4,7 @@
 #include "../common/Utils/Utils.h"
 #include "../common/Utils/GlobalConstants.h"
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -75,6 +76,54 @@ public:
 				execSql.append("'").append(v).append("'");
 			
 			return ExecNoneQuerySql(execSql);
+		}
+		else {
+			return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+		}
+	}
+
+	Rjson update(string tablename, Rjson& params)
+	{
+		if (params.IsObject()) {
+			string execSql = "update ";
+			execSql.append(tablename).append(" set ");
+
+			vector<string> allKeys = params.GetAllKeys();
+
+			vector<string>::iterator iter = find(allKeys.begin(), allKeys.end(), "id");
+			if (iter == allKeys.end()) {
+				return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+			}
+			else {
+				size_t len = allKeys.size();
+				size_t conditionLen = len - 2;
+				string fields = "", where = " where id = ";
+				for (size_t i = 0; i < len; i++) {
+					string key = allKeys[i];
+					string v;
+					int vType;
+					params.GetValueAndTypeByKey(key, &v, &vType); 
+					if (key.compare("id") == 0) {
+						conditionLen++;
+						if (vType == 6)
+							where.append(v);
+						else
+							where.append("'").append(v).append("'");
+					}
+					else {
+						fields.append(key).append(" = ");
+						if (vType == 6)
+							fields.append(v);
+						else
+							fields.append("'").append(v).append("'");
+						if (i < conditionLen) {
+							fields.append(",");
+						}
+					}
+				}
+				execSql.append(fields).append(where);
+				return ExecNoneQuerySql(execSql);
+			}
 		}
 		else {
 			return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
@@ -219,7 +268,7 @@ private:
 
 					}
 					else if (nType == 3) {				//SQLITE_TEXT
-						al.AddValueString(k, Utils::U8ToUnicode((char*)sqlite3_column_text(stmt, j)));
+						al.AddValueString(k, ((char*)sqlite3_column_text(stmt, j)));
 					}
 					else if (nType == 4) {				//SQLITE_BLOB
 

@@ -22,6 +22,10 @@ public:
 		return db->create(tablename, params);
 	};
 
+	Rjson update(string tablename, Rjson& params) {
+		return db->update(tablename, params);
+	};
+
 	Rjson remove(string tablename, Rjson& params) {
 		return db->remove(tablename, params);
 	};

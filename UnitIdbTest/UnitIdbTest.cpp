@@ -100,10 +100,27 @@ namespace UnitIdbTest
 
 			vector<Rjson> rsData = rs.GetArrayByKey("data");
 			Rjson data0 = rsData[0];
-			v = "";
-			data0.GetValueAndTypeByKey("id", &v, &vType);
+			string id = "";
+			data0.GetValueAndTypeByKey("id", &id, &vType);
 
-			string sss = "{\"id\":" + v + "}";
+			Rjson qUp("{\"username\":\"Âé×ÓÐÞ¸Ä\"}");
+			rs = db->update("users", qUp);
+
+			v = "";
+			rs.GetValueAndTypeByKey("code", &v, &vType);
+			Assert::AreEqual(atoi(v.c_str()), (int)STPARAMERR);				//assert update no id
+
+			qUp.AddValueInt("id", atoi(id.c_str()));
+			qUp.AddValueString("password", "123321");
+			rs = db->update("users", qUp);
+
+			v = "";
+			rs.GetValueAndTypeByKey("code", &v, &vType);
+			Assert::AreEqual(atoi(v.c_str()), (int)STSUCCESS);				//assert update with id
+
+			
+
+			string sss = "{\"id\":" + id + "}";
 			Rjson rData(sss);
 			//rData.AddValueInt("id", atoi(v.c_str()));
 			rs = db->remove("users", rData);
