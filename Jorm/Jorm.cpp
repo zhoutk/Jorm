@@ -11,6 +11,11 @@ using namespace std;
 int _tmain(int argc, _TCHAR* argv[])
 {
 	DbBase * db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
+
+	Rjson qObjCreate("{\"username\":\"麻子\", \"password\":1298}");
+	Rjson rs = db->create("users", qObjCreate);
+
+
 	//Rjson qObj("{\"id\": 1, \"password\":\"123\", \"username\":\"张三\"}");		//\"username\": \"john\"
 	Rjson qObj;		//("{")    \"username\": \"john\"    ("{\"username\":\"张三\"}")
 	string str[] = { "id","password", "username" };

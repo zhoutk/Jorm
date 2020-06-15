@@ -18,6 +18,10 @@ public:
 		return db->retrieve(tablename, params, fields);
 	};
 
+	Rjson create(string tablename, Rjson& params) {
+		return db->create(tablename, params);
+	};
+
 private:
 	string connStr;
 	Idb * db;

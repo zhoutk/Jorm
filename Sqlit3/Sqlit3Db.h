@@ -59,6 +59,38 @@ public:
 		new (this)Sqlit3Db(aFilename.c_str(), aFlags, aBusyTimeoutMs, aVfs.empty() ? nullptr : aVfs.c_str());
 	};
 
+	Rjson create(string tablename, Rjson& params)
+	{
+		if (params.IsObject()) {
+			string execSql = "insert into ";
+			execSql.append(tablename).append(" ");
+
+			vector<string> allKeys = params.GetAllKeys();
+			size_t len = allKeys.size();
+			string fields = "", vs = "";
+			for (size_t i = 0; i < len; i++) {
+				string key = allKeys[i];
+				fields.append(key);
+				string v;
+				int vType;
+				params.GetValueAndTypeByKey(key, &v, &vType);
+				if (vType == 6)
+					vs.append(v);
+				else
+					vs.append("'").append(v).append("'");
+				if (i < len - 1) {
+					fields.append(",");
+					vs.append(",");
+				}
+			}
+			execSql.append("(").append(fields).append(") values (").append(vs).append(")");
+			return ExecNoneQuerySql(execSql);
+		}
+		else {
+			return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+		}
+	}
+
 	Rjson retrieve(string tablename, Rjson& params, vector<string> fields = vector<string>()) {
 		if (params.IsObject()) {
 			string querySql = "select ";
@@ -81,8 +113,8 @@ public:
 			querySql.append(" from ").append(tablename);
 
 			vector<string> allKeys = params.GetAllKeys();
-			int len = allKeys.size();
-			for (int i = 0; i < len; i++) {
+			size_t len = allKeys.size();
+			for (size_t i = 0; i < len; i++) {
 				string k = allKeys[i];
 				string v;
 				bool v_number;
@@ -185,6 +217,23 @@ private:
 		return rs;
 	}
 
-                     
+	Rjson ExecNoneQuerySql(string aQuery) {
+		Rjson rs = Utils::MakeJsonObjectForFuncReturn(STSUCCESS);
+		sqlite3_stmt* stmt = NULL;
+		sqlite3* handle = getHandle();
+		string u8Query = Utils::UnicodeToU8(aQuery);
+		const int ret = sqlite3_prepare_v2(handle, u8Query.c_str(), static_cast<int>(u8Query.size()), &stmt, NULL);
+		if (SQLITE_OK != ret)
+		{
+			rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR));
+		}
+		else {
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
+		cout << "SQL: " << aQuery << endl;
+		return rs;
+	}
+
 };
 
