@@ -8,8 +8,8 @@ class Utils {
 public:
 	static Rjson MakeJsonObjectForFuncReturn(StatusCodes code) {
 		Rjson rs;
-		rs.AddValueInt("code", code);
-		rs.AddValueString("msg", STCODEMESSAGES[code]);
+		rs.AddValueInt("code", (int)code);
+		rs.AddValueString("msg", STCODEMESSAGES[(int)code]);
 		return rs;
 	}
 

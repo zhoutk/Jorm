@@ -139,13 +139,13 @@ public:
 			for (size_t i = 0; i < len; i++) {
 				string k = allKeys[i];
 				string v;
-				bool v_number;
-				params.GetValueAndTypeByKey(k, &v, &v_number);
+				int vType;
+				params.GetValueAndTypeByKey(k, &v, &vType);
 				if (where.length() > 0) {
 					where.append(AndJoinStr);
 				}
 
-				if (v_number)
+				if (vType == kNumberType)
 					where.append(k).append(" = ").append(v);
 				else
 					where.append(k).append(" = '").append(v).append("'");
@@ -251,8 +251,8 @@ private:
 		}
 		else {
 			sqlite3_step(stmt);
-			sqlite3_finalize(stmt);
 		}
+		sqlite3_finalize(stmt);
 		cout << "SQL: " << aQuery << endl;
 		return rs;
 	}

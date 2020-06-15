@@ -108,32 +108,24 @@ public:
 		json->AddMember(StringRef(newK->c_str()), rows, json->GetAllocator());
 	}
 
-	void GetValueAndTypeByKey(string key, string* v, bool* v_number) {
-		Value& value = json->FindMember(key.c_str())->value;
-		if (value.IsInt()) {
-			*v_number = true;
-			std::stringstream s;
-			s << value.GetInt();
-			*v = s.str();
-		}
-		else {
-			*v_number = false;
-			*v = value.GetString();
-		}
-	}
-
 	void GetValueAndTypeByKey(string key, string* v, int* vType) {
-		Value& value = json->FindMember(key.c_str())->value;
-		*vType = value.GetType();
-		if (value.IsInt()) {
-			std::stringstream s;
-			s << value.GetInt();
-			*v = s.str();
-		}
-		else if(value.IsString()){
-			*v = value.GetString();
+		Value::ConstMemberIterator iter = json->FindMember(key.c_str());
+		if (iter != json->MemberEnd()) {
+			*vType = (int)(iter->value.GetType());
+			if (iter->value.IsInt()) {
+				std::stringstream s;
+				s << iter->value.GetInt();
+				*v = s.str();
+			}
+			else if (iter->value.IsString()) {
+				*v = iter->value.GetString();
+			}
+			else {
+				*v = "";
+			}
 		}
 		else {
+			*vType = kStringType;
 			*v = "";
 		}
 	}
