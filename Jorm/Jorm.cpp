@@ -30,10 +30,10 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << "    " << key << " is array: " << endl;
 			cout << "-------------------------------------" << endl;
 			vector<Rjson> arr = rsa.GetArrayByKey(key);
-			for (int j = 0; j < arr.size(); j++) {
+			for (size_t j = 0; j < arr.size(); j++) {
 				Rjson al = arr[j];
 				vector<string> subKeys = al.GetAllKeys();
-				for (int k = 0; k < subKeys.size(); k++) {
+				for (size_t k = 0; k < subKeys.size(); k++) {
 					string sv;
 					int nstype;
 					al.GetValueAndTypeByKey(subKeys[k], &sv, &nstype);

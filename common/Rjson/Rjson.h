@@ -69,9 +69,10 @@ public:
 				//v = (Value&)std::move(vTmp);
 			}
 			else {
+				string* newK = new string(iter->name.GetString());
 				Value vTmp;
 				vTmp.CopyFrom(iter->value, json->GetAllocator());
-				json->AddMember(iter->name, vTmp, json->GetAllocator());
+				json->AddMember(StringRef(newK->c_str()), vTmp, json->GetAllocator());
 			}
 		}
 		return *(this);
@@ -91,7 +92,7 @@ public:
 		json->AddMember(StringRef(newK->c_str()), aStr, json->GetAllocator());
 	}
 
-	void AddValueObjectArray(string k, vector<Rjson> arr) {
+	void AddValueObjectArray(string k, vector<Rjson> arr) { //些处arr是值传递。
 		string* newK = new string(k);
 		int len = arr.size();
 		Value rows(kArrayType);
@@ -99,8 +100,8 @@ public:
 			Value arow(kObjectType);
 			Document* al = arr.at(i).GetOriginRapidJson();
 			for (auto iter = al->MemberBegin(); iter != al->MemberEnd(); ++iter)
-			{
-				arow.AddMember(iter->name, iter->value, json->GetAllocator());
+			{	//arr中的数据会被move走，些后arr不能再引用
+				arow.AddMember(iter->name, iter->value, json->GetAllocator()); 
 			}
 			rows.PushBack(arow, json->GetAllocator());
 		}
@@ -129,17 +130,11 @@ public:
 			s << value.GetInt();
 			*v = s.str();
 		}
-		else if (value.IsArray()) {
-			//Value vArr;
-			//vArr.CopyFrom(value, json->GetAllocator());
-			//StringBuffer strBuffer;
-			//Writer<StringBuffer> writer(strBuffer);
-			//vArr.Accept(writer);
-			////string* tmp = new string(strBuffer.GetString());
-			//*v = strBuffer.GetString();
+		else if(value.IsString()){
+			*v = value.GetString();
 		}
 		else {
-			*v = value.GetString();
+			*v = "";
 		}
 	}
 
