@@ -59,6 +59,28 @@ public:
 		new (this)Sqlit3Db(aFilename.c_str(), aFlags, aBusyTimeoutMs, aVfs.empty() ? nullptr : aVfs.c_str());
 	};
 
+	Rjson remove(string tablename, Rjson& params)
+	{
+		if (params.IsObject()) {
+			string execSql = "delete from ";
+			execSql.append(tablename).append(" where id = ");
+
+			string v;
+			int vType;
+			params.GetValueAndTypeByKey("id", &v, &vType);
+
+			if (vType == 6)
+				execSql.append(v);
+			else
+				execSql.append("'").append(v).append("'");
+			
+			return ExecNoneQuerySql(execSql);
+		}
+		else {
+			return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+		}
+	}
+
 	Rjson create(string tablename, Rjson& params)
 	{
 		if (params.IsObject()) {

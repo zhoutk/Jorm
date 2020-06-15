@@ -85,13 +85,21 @@ namespace UnitIdbTest
 		TEST_METHOD(TestDbCreateRecord)						//test select filed is not exist
 		{
 			DbBase* db = new DbBase(dbStr);
-			Rjson qObj("{\"username\":\"Âé×Ó\", \"password\":1298}");
+			Rjson qObj("{\"username\":\"Âé×Ó²âÊÔ\", \"password\":1298}");
 			Rjson rs = db->create("users", qObj);
-			
+
 			string v;
 			bool v_number;
 			rs.GetValueAndTypeByKey("code", &v, &v_number);
 			Assert::AreEqual(atoi(v.c_str()), (int)STSUCCESS);
+
+			v = "";
+			rs = db->select("users", Rjson("{\"username\":\"Âé×Ó²âÊÔ\"}"));
+			rs.GetValueAndTypeByKey("code", &v, &v_number);
+			Assert::AreEqual(atoi(v.c_str()), (int)STSUCCESS);
+
+			//rs = db->remove("users", )
+
 		}
 	};
 }

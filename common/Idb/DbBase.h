@@ -22,6 +22,10 @@ public:
 		return db->create(tablename, params);
 	};
 
+	Rjson remove(string tablename, Rjson& params) {
+		return db->remove(tablename, params);
+	};
+
 private:
 	string connStr;
 	Idb * db;
