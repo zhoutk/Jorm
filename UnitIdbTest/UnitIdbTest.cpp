@@ -83,7 +83,7 @@ namespace UnitIdbTest
 			obj.AddValueString("username", "уехЩ");
 			string str[] = { "id","password", "username" };
 			vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
-			Rjson rs = db->querySql("select * from users", obj, fields);
+			Rjson rs = db->querySql("select * from users where id = 1", obj, fields);
 
 			string v;
 			int vType;

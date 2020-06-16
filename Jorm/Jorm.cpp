@@ -16,24 +16,30 @@ int _tmain(int argc, _TCHAR* argv[])
 	Rjson rs = db->remove("users", qObjCreate);*/
 
 	//Rjson qObj("{\"id\": 1, \"password\":\"123\", \"username\":\"张三\"}");		//\"username\": \"john\"
-	Rjson qObj("{\"username\":\"张三\"}");		//("{")    \"username\": \"john\"    ("{\"username\":\"张三\"}")
-	string str[] = { "password" };   //"username", "password", "update_time"
+	//Rjson qObj("{\"username\":\"张三\"}");		//("{")    \"username\": \"john\"    ("{\"username\":\"张三\"}")
+	//string str[] = { "password" };   //"username", "password", "update_time"
+	//vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
+	//Rjson rsa = db->select("users", qObj);			//, &qObj, fields
+
+	Rjson obj;
+	obj.AddValueString("username", "张三");
+	string str[] = { "id","password", "username" };
 	vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
-	Rjson rsa = db->select("users", qObj);			//, &qObj, fields
+	Rjson rs = db->querySql("select * from users where id = 1", obj );
 
-	//cout << "1111111 the result is : " << rsa.GetJsonString() << endl;
+	//cout << "1111111 the result is : " << rs.GetJsonString() << endl;
 
-	vector<string> keys = rsa.GetAllKeys();
+	vector<string> keys = rs.GetAllKeys();
 
 	int len = keys.size();
 	for (int i = 0; i < len; i++) {
 		string v, key = keys[i];
 		int vType;
-		rsa.GetValueAndTypeByKey(key, &v, &vType);
+		rs.GetValueAndTypeByKey(key, &v, &vType);
 		if (vType == 4) {
 			cout << "    " << key << " is array: " << endl;
 			cout << "-------------------------------------" << endl;
-			vector<Rjson> arr = rsa.GetArrayByKey(key);
+			vector<Rjson> arr = rs.GetArrayByKey(key);
 			for (size_t j = 0; j < arr.size(); j++) {
 				Rjson al = arr[j];
 				vector<string> subKeys = al.GetAllKeys();
@@ -50,7 +56,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << "key: " << key << ", value: " << v << endl;
 	}
 
-	//cout << "22222222 the result is : " << rsa.GetJsonString() << endl;
+	//cout << "22222222 the result is : " << rs.GetJsonString() << endl;
 
 	system("pause");
 	return 0;
