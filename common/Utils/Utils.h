@@ -17,6 +17,12 @@ public:
 		return std::string(tmp);
 	}
 
+	static string IntTransToString(int val) {
+		std::stringstream ss;
+		ss << val;
+		return ss.str();
+	}
+
 	static string GetVectorJoinStr(vector<string> v) {
 		std::stringstream ss;
 		for (size_t i = 0; i < v.size(); ++i)

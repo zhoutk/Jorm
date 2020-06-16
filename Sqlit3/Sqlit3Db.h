@@ -182,8 +182,8 @@ public:
 			}
 
 			string sort = params.GetStringValueAndRemove("sort");
-			string page = params.GetStringValueAndRemove("page");
-			string size = params.GetStringValueAndRemove("size");
+			int page = atoi(params.GetStringValueAndRemove("page").c_str());
+			int size = atoi(params.GetStringValueAndRemove("size").c_str());
 
 			vector<string> allKeys = params.GetAllKeys();
 			size_t len = allKeys.size();
@@ -230,6 +230,11 @@ public:
 				querySql.append(" order by ").append(sort);
 			}
 
+			if (page > 0) {
+				page--;
+				querySql.append(" limit ").append(Utils::IntTransToString(page * size)).append(",").append(Utils::IntTransToString(size));
+			}
+
 			return ExecQuerySql(querySql, fields);
 		}
 		else {
@@ -265,7 +270,12 @@ private:
 			int nCol = fields.size();
 			if (fields.empty()) {
 				int insertPot = aQuery.find("where");
-				insertPot = insertPot >= 0 ? insertPot : aQuery.length();
+				if (insertPot == aQuery.npos) {
+					insertPot = aQuery.find("limit");
+					if (insertPot == aQuery.npos) {
+						insertPot = aQuery.length();
+					}
+				}
 				string aQueryLimit0 = aQuery.substr(0, insertPot).append(" limit 1");
 				char** pRes = NULL;
 				int nRow = 0;
