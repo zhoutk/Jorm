@@ -92,7 +92,7 @@ public:
 		json->AddMember(StringRef(newK->c_str()), aStr, json->GetAllocator());
 	}
 
-	void AddValueObjectArray(string k, vector<Rjson> arr) { //些处arr是值传递。
+	void AddValueObjectArray(string k, vector<Rjson> & arr) { 
 		string* newK = new string(k);
 		int len = arr.size();
 		Value rows(kArrayType);
@@ -100,8 +100,11 @@ public:
 			Value arow(kObjectType);
 			Document* al = arr.at(i).GetOriginRapidJson();
 			for (auto iter = al->MemberBegin(); iter != al->MemberEnd(); ++iter)
-			{	//arr中的数据会被move走，些后arr不能再引用
-				arow.AddMember(iter->name, iter->value, json->GetAllocator()); 
+			{	//必须新建，要把内存放到这个json对象上，不然，目标值长度一大，就会出问题。
+				string* nkey = new string(iter->name.GetString());
+				Value nv;
+				nv.CopyFrom(iter->value, json->GetAllocator());
+				arow.AddMember(StringRef(nkey->c_str()), nv, json->GetAllocator()); 
 			}
 			rows.PushBack(arow, json->GetAllocator());
 		}
