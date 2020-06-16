@@ -181,6 +181,10 @@ public:
 				fieldsJoinStr = Utils::GetVectorJoinStr(fields);
 			}
 
+			string sort = params.GetStringValueAndRemove("sort");
+			string page = params.GetStringValueAndRemove("page");
+			string size = params.GetStringValueAndRemove("size");
+
 			vector<string> allKeys = params.GetAllKeys();
 			size_t len = allKeys.size();
 			for (size_t i = 0; i < len; i++) {
@@ -220,6 +224,10 @@ public:
 						querySql.append(" and ").append(where);
 					}
 				}
+			}
+
+			if (!sort.empty()) {
+				querySql.append(" order by ").append(sort);
 			}
 
 			return ExecQuerySql(querySql, fields);
