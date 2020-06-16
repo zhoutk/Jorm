@@ -7,6 +7,23 @@
 
 class Utils {
 public:
+	static bool FindCharArray(char** strings, char* value) {
+		char* string;     
+		char* parValue;  
+		while ((string = *strings++) != NULL)
+		{
+			parValue = value;
+			while (*string != '\0' && *parValue != '\0') 
+			{
+				if ((*string++ == *parValue++) && (*string == '\0' || *parValue == '\0'))  
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	static vector<string> MakeVectorInitForString(string str, char flag = ',') {
 		vector<string> rs;
 		istringstream iss(str);

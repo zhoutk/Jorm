@@ -17,6 +17,10 @@ const int   OPEN_URI = SQLITE_OPEN_URI;
 
 const int   OK = SQLITE_OK;
 
+char* QUERY_EXTRA_KEYS[] = { "ins", "lks", "ors" };
+char* QUERY_UNEQ_OPERS[] = { ">,", ">=,", "<,", "<=,", "<>,", "=," };
+char* QUERY_STATIS_KEYS[] = { "count", "sum" };
+
 class Sqlit3Db : public Idb
 {
 public:
@@ -194,6 +198,10 @@ public:
 				params.GetValueAndTypeByKey(k, &v, &vType);
 				if (where.length() > 0) {
 					where.append(AndJoinStr);
+				}
+
+				if (Utils::FindCharArray(QUERY_EXTRA_KEYS, (char*)k.c_str())) {
+					int d = 9;
 				}
 
 				if (vType == kNumberType)

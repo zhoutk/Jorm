@@ -18,7 +18,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	//Rjson qObj("{\"id\": 1, \"password\":\"123\", \"username\":\"张三\"}");		//\"username\": \"john\"
 	Rjson qObj;		//("{")    \"username\": \"john\"    ("{\"username\":\"张三\"}")
 	qObj.AddValueString("sort", "id desc");
-	qObj.AddValueInt("page", 2);
+	qObj.AddValueInt("id", 1);
+	qObj.AddValueString("ors", "password,123,456");
+	qObj.AddValueInt("page", 1);
 	qObj.AddValueInt("size", 2);
 	//string str[] = { "password", "username" };   //"username", "password", "update_time"
 	//vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
