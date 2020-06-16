@@ -13,5 +13,6 @@ public:
 	virtual Rjson update(string tablename, Rjson& params) = 0;
 	virtual Rjson remove(string tablename, Rjson& params) = 0;
 	virtual Rjson querySql(string sql, Rjson& params = Rjson(), vector<string> filelds = vector<string>()) = 0;
+	virtual Rjson execSql(string sql) = 0;
 };
 

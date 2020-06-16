@@ -52,11 +52,12 @@ namespace UnitIdbTest
 			string id = "";
 			data0.GetValueAndTypeByKey("id", &id, &vType);
 
-			Rjson qUp("{\"username\":\"张三\"}");								//set params for update
-			qUp.AddValueInt("id", atoi(id.c_str()));
-			qUp.AddValueString("password", "123321");
-			qUp.AddValueString("update_time", Utils::GetLocalNowTime());
-			rs = db->update("users", qUp);
+			string sql = "update users set update_time = '" + Utils::GetLocalNowTime() + "' where id = " + id;
+			//Rjson qUp("{\"username\":\"张三\"}");								//set params for update
+			//qUp.AddValueInt("id", atoi(id.c_str()));
+			//qUp.AddValueString("password", "123321");
+			//qUp.AddValueString("update_time", Utils::GetLocalNowTime());
+			rs = db->execSql(sql);
 
 			v = "";
 			rs.GetValueAndTypeByKey("code", &v, &vType);
@@ -163,7 +164,7 @@ namespace UnitIdbTest
 			rs.GetValueAndTypeByKey("code", &v, &vType);
 			Assert::AreEqual(atoi(v.c_str()), (int)STSUCCESS);				//assert update with id
 
-			
+
 
 			string sss = "{\"id\":" + id + "}";
 			Rjson rData(sss);

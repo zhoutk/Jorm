@@ -162,6 +162,10 @@ public:
 		}
 	}
 
+	Rjson execSql(string sql) {
+		return ExecNoneQuerySql(sql);
+	}
+
 	Rjson querySql(string sql, Rjson& params = Rjson(), vector<string> filelds = vector<string>()) {
 		return select(sql, params, filelds, 2);
 	}

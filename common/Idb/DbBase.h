@@ -14,7 +14,7 @@ public:
 		}
 	};
 
-	Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>(), int queryType = 1) {
+	Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>()) {
 		return db->select(tablename, params, fields);
 	};
 
@@ -32,6 +32,10 @@ public:
 
 	Rjson querySql(string sql, Rjson& params = Rjson(), vector<string> filelds = vector<string>()) {
 		return db->querySql(sql, params, filelds);
+	}
+
+	Rjson execSql(string sql) {
+		return db->execSql(sql);
 	}
 
 private:
