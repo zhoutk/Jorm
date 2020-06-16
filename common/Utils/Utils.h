@@ -7,6 +7,16 @@
 
 class Utils {
 public:
+	static vector<string> MakeVectorInitForStringArray(string str) {
+		vector<string> rs;
+		char* token = strtok((char*)str.data(), ",");
+		while (token != NULL) {
+			rs.push_back(token);
+			token = strtok(NULL, ",");
+		}
+		return rs;
+	}
+
 	static string GetLocalNowTime() {
 		time_t timep;
 		time(&timep);
