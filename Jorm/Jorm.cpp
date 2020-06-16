@@ -17,7 +17,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//Rjson qObj("{\"id\": 1, \"password\":\"123\", \"username\":\"张三\"}");		//\"username\": \"john\"
 	Rjson qObj;		//("{")    \"username\": \"john\"    ("{\"username\":\"张三\"}")
-	string str[] = { "update_time" };
+	string str[] = { "password" };   //"username", "password", "update_time"
 	vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
 	Rjson rsa = db->select("users", qObj, fields);			//, &qObj, fields
 

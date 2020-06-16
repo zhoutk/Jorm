@@ -268,7 +268,7 @@ private:
 
 					}
 					else if (nType == 3) {				//SQLITE_TEXT
-						al.AddValueString(k, ((char*)sqlite3_column_text(stmt, j)));
+						al.AddValueString(k, Utils::U8ToUnicode((char*)sqlite3_column_text(stmt, j)));
 					}
 					else if (nType == 4) {				//SQLITE_BLOB
 
