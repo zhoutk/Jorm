@@ -82,7 +82,7 @@ namespace UnitIdbTest
 			rs.GetValueAndTypeByKey("code", &v, &vType);
 			Assert::AreEqual(atoi(v.c_str()), (int)STDBOPERATEERR);
 		}
-		TEST_METHOD(TestDbCreateRecord)						//test curd
+		TEST_METHOD(TestDbCURDRecord)						//test curd
 		{
 			DbBase* db = new DbBase(dbStr);
 			Rjson qObj("{\"username\":\"Âé×Ó²âÊÔ\", \"password\":1298}");
