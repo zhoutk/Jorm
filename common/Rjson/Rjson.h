@@ -34,9 +34,30 @@ public:
 		json->CopyFrom(*(origin.json), json->GetAllocator());
 	}
 
+	string operator[](string key) {
+		string rs = "";
+		if (json->HasMember(key.c_str())) {
+			int vType;
+			GetValueAndTypeByKey(key.c_str(), &rs, &vType);
+		}
+		return rs;
+	}
+
 	Rjson& operator = (const Rjson& origin) {
 		new (this)Rjson(origin);
 		return(*this);
+	}
+
+	bool HasMember(string key) {
+		return json->HasMember(key.c_str());
+	}
+
+	string GetStringValueAndRemove(string key) {
+		string rs = (*this)[key];
+		if (HasMember(key)) {
+			json->RemoveMember(key.c_str());
+		}
+		return rs;
 	}
 
 	vector<Rjson> GetArrayByKey(string k) {
@@ -49,7 +70,7 @@ public:
 				for (auto iter = v[i].MemberBegin(); iter != v[i].MemberEnd(); ++iter)
 				{
 					Value vv;
-					string *newK = new string(iter->name.GetString());
+					string* newK = new string(iter->name.GetString());
 					vv.CopyFrom(iter->value, al.json->GetAllocator());
 					al.json->AddMember(StringRef(newK->c_str()), vv, al.json->GetAllocator());
 				}
@@ -92,7 +113,19 @@ public:
 		json->AddMember(StringRef(newK->c_str()), aStr, json->GetAllocator());
 	}
 
-	void AddValueObjectArray(string k, vector<Rjson> & arr) { 
+	void AddValueArray(string k, vector<string>& arr) {
+		string* newK = new string(k);
+		int len = arr.size();
+		Value rows(kArrayType);
+		for (int i = 0; i < len; i++) {
+			Value al(kStringType);
+			al.SetString(arr.at(i).c_str(),json->GetAllocator());
+			rows.PushBack(al, json->GetAllocator());
+		}
+		json->AddMember(StringRef(newK->c_str()), rows, json->GetAllocator());
+	}
+
+	void AddValueObjectArray(string k, vector<Rjson>& arr) {
 		string* newK = new string(k);
 		int len = arr.size();
 		Value rows(kArrayType);
@@ -104,7 +137,7 @@ public:
 				string* nkey = new string(iter->name.GetString());
 				Value nv;
 				nv.CopyFrom(iter->value, json->GetAllocator());
-				arow.AddMember(StringRef(nkey->c_str()), nv, json->GetAllocator()); 
+				arow.AddMember(StringRef(nkey->c_str()), nv, json->GetAllocator());
 			}
 			rows.PushBack(arow, json->GetAllocator());
 		}
@@ -123,6 +156,9 @@ public:
 			else if (iter->value.IsString()) {
 				*v = iter->value.GetString();
 			}
+			else if (iter->value.IsArray()) {
+				*v = GetJsonString((Value&)iter->value);
+			}
 			else {
 				*v = "";
 			}
@@ -133,8 +169,13 @@ public:
 		}
 	}
 
-	Document* GetOriginRapidJson() {
-		return json;
+	vector<string> GetStringArray() {
+		vector<string> rs;
+		for (auto iter = json->Begin(); iter != json->End(); ++iter)
+		{
+			rs.push_back(iter->GetString());
+		}
+		return rs;
 	}
 
 	vector<string> GetAllKeys() {
@@ -160,6 +201,18 @@ public:
 	~Rjson() {
 		if (json)
 			delete json;
+	}
+
+private:
+	Document* GetOriginRapidJson() {
+		return json;
+	}
+
+	string GetJsonString(Value& v) {
+		StringBuffer strBuffer;
+		Writer<StringBuffer> writer(strBuffer);
+		v.Accept(writer);
+		return strBuffer.GetString();
 	}
 
 };

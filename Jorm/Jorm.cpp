@@ -23,42 +23,56 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	Rjson obj;
 	obj.AddValueString("username", "ÕÅÈý");
-	string str[] = { "id","password", "username" };
+	string str[] = { "password", "123", "321" };   //"username", "password", "update_time"
 	vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
-	Rjson rs = db->querySql("select * from users where id = 1", obj );
+	obj.AddValueArray("ins", fields);
 
-	//cout << "1111111 the result is : " << rs.GetJsonString() << endl;
+	string dd = obj.GetStringValueAndRemove("username");
 
-	vector<string> keys = rs.GetAllKeys();
+	string cc = obj["ins"];
 
-	int len = keys.size();
-	for (int i = 0; i < len; i++) {
-		string v, key = keys[i];
-		int vType;
-		rs.GetValueAndTypeByKey(key, &v, &vType);
-		if (vType == 4) {
-			cout << "    " << key << " is array: " << endl;
-			cout << "-------------------------------------" << endl;
-			vector<Rjson> arr = rs.GetArrayByKey(key);
-			for (size_t j = 0; j < arr.size(); j++) {
-				Rjson al = arr[j];
-				vector<string> subKeys = al.GetAllKeys();
-				for (size_t k = 0; k < subKeys.size(); k++) {
-					string sv;
-					int nstype;
-					al.GetValueAndTypeByKey(subKeys[k], &sv, &nstype);
-					cout << "    " << subKeys[k] << ", value: " << sv << endl;
-				}
-				cout << endl;
-			}
-			//cout << "-------------------------------------" << endl;
-		}else
-			cout << "key: " << key << ", value: " << v << endl;
-	}
+	Rjson arr(cc);
 
-	//cout << "22222222 the result is : " << rs.GetJsonString() << endl;
+	vector<string> list = arr.GetStringArray();
 
 	system("pause");
 	return 0;
+
+	/*string str[] = { "id","password", "username" };
+	vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
+	Rjson rs = db->querySql("select * from users where id = 1", obj );*/
+
+	//cout << "1111111 the result is : " << rs.GetJsonString() << endl;
+
+	//vector<string> keys = rs.GetAllKeys();
+
+	//int len = keys.size();
+	//for (int i = 0; i < len; i++) {
+	//	string v, key = keys[i];
+	//	int vType;
+	//	rs.GetValueAndTypeByKey(key, &v, &vType);
+	//	if (vType == 4) {
+	//		cout << "    " << key << " is array: " << endl;
+	//		cout << "-------------------------------------" << endl;
+	//		vector<Rjson> arr = rs.GetArrayByKey(key);
+	//		for (size_t j = 0; j < arr.size(); j++) {
+	//			Rjson al = arr[j];
+	//			vector<string> subKeys = al.GetAllKeys();
+	//			for (size_t k = 0; k < subKeys.size(); k++) {
+	//				string sv;
+	//				int nstype;
+	//				al.GetValueAndTypeByKey(subKeys[k], &sv, &nstype);
+	//				cout << "    " << subKeys[k] << ", value: " << sv << endl;
+	//			}
+	//			cout << endl;
+	//		}
+	//		//cout << "-------------------------------------" << endl;
+	//	}else
+	//		cout << "key: " << key << ", value: " << v << endl;
+	//}
+
+	//cout << "22222222 the result is : " << rs.GetJsonString() << endl;
+
+
 }
 
