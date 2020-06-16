@@ -7,12 +7,13 @@
 
 class Utils {
 public:
-	static vector<string> MakeVectorInitForStringArray(string str) {
+	static vector<string> MakeVectorInitForString(string str, char flag = ',') {
 		vector<string> rs;
-		char* token = strtok((char*)str.data(), ",");
-		while (token != NULL) {
-			rs.push_back(token);
-			token = strtok(NULL, ",");
+		istringstream iss(str);
+		string temp;
+
+		while (getline(iss, temp, flag)) {
+			rs.push_back(temp);
 		}
 		return rs;
 	}

@@ -22,7 +22,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	qObj.AddValueInt("size", 2);
 	//string str[] = { "password", "username" };   //"username", "password", "update_time"
 	//vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
-	Rjson rs = db->select("users", qObj, Utils::MakeVectorInitForStringArray("id,username,password,update_time"));			//, &qObj, fields
+	Rjson rs = db->select("users", qObj, Utils::MakeVectorInitForString("id,username,password,update_time"));			//, &qObj, fields
 
 	//Rjson obj;
 	//obj.AddValueString("username", "уехЩ");
