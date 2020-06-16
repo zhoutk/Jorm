@@ -34,11 +34,56 @@ namespace UnitIdbTest
 			rs.GetValueAndTypeByKey("code", &v, &vType);
 			Assert::AreEqual(atoi(v.c_str()), (int)STSUCCESS);
 		}
-		TEST_METHOD(TestDbQuerySelectEqualResultExist)						//test select filed condition equal & result exist & value is chinese
+		TEST_METHOD(TestDbQuerySelectEqualResultExistAndUpdate)						//test select filed condition equal & result exist & value is chinese
 		{
 			DbBase* db = new DbBase(dbStr);
 			Rjson qObj("{\"username\":\"张三\"}");
 			Rjson rs = db->select("users", qObj);
+
+			string v;
+			int vType;
+			rs.GetValueAndTypeByKey("code", &v, &vType);
+			Assert::AreEqual(atoi(v.c_str()), (int)STSUCCESS);
+			//size_t dd = (rs.GetArrayByKey("data")).size();
+			Assert::IsTrue(rs.GetArrayByKey("data").size() > 0);
+
+			vector<Rjson> rsData = rs.GetArrayByKey("data");					//get id
+			Rjson data0 = rsData[0];
+			string id = "";
+			data0.GetValueAndTypeByKey("id", &id, &vType);
+
+			Rjson qUp("{\"username\":\"张三\"}");								//set params for update
+			qUp.AddValueInt("id", atoi(id.c_str()));
+			qUp.AddValueString("password", "123321");
+			qUp.AddValueString("update_time", Utils::GetLocalNowTime());
+			rs = db->update("users", qUp);
+
+			v = "";
+			rs.GetValueAndTypeByKey("code", &v, &vType);
+			Assert::AreEqual(atoi(v.c_str()), (int)STSUCCESS);				//assert update with id
+		}
+
+		TEST_METHOD(TestDbQueryManualSelectStar)						//test manual sql, not fileds
+		{
+			DbBase* db = new DbBase(dbStr);
+			Rjson rs = db->querySql("select * from users where id = 1");
+
+			string v;
+			int vType;
+			rs.GetValueAndTypeByKey("code", &v, &vType);
+			Assert::AreEqual(atoi(v.c_str()), (int)STSUCCESS);
+			//size_t dd = (rs.GetArrayByKey("data")).size();
+			Assert::IsTrue(rs.GetArrayByKey("data").size() > 0);
+		}
+
+		TEST_METHOD(TestDbQueryManualSelectFields)						//test manual sql, with fileds
+		{
+			DbBase* db = new DbBase(dbStr);
+			Rjson obj;
+			obj.AddValueString("username", "张三");
+			string str[] = { "id","password", "username" };
+			vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
+			Rjson rs = db->querySql("select * from users", obj, fields);
 
 			string v;
 			int vType;

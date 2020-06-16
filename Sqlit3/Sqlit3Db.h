@@ -162,26 +162,20 @@ public:
 		}
 	}
 
-	Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>()) {
+	Rjson querySql(string sql, Rjson& params = Rjson(), vector<string> filelds = vector<string>()) {
+		return select(sql, params, filelds, 2);
+	}
+
+	Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>(), int queryType = 1) {
 		if (params.IsObject()) {
-			string querySql = "select ";
+			string querySql = "";
 			string where = "";
 			const string AndJoinStr = " and ";
+			string fieldsJoinStr = "*";
 
-			if (fields.empty()) {
-				querySql.append("*");
+			if (!fields.empty()) {
+				fieldsJoinStr = Utils::GetVectorJoinStr(fields);
 			}
-			else {
-				std::stringstream ss;
-				for (size_t i = 0; i < fields.size(); ++i)
-				{
-					if (i != 0)
-						ss << ",";
-					ss << fields[i];
-				}
-				querySql.append(ss.str());
-			}
-			querySql.append(" from ").append(tablename);
 
 			vector<string> allKeys = params.GetAllKeys();
 			size_t len = allKeys.size();
@@ -200,8 +194,30 @@ public:
 					where.append(k).append(" = '").append(v).append("'");
 			}
 
-			if (where.length() > 0)
-				querySql.append(" where ").append(where);
+			if (queryType == 1) {
+				querySql.append("select ").append(fieldsJoinStr).append(" from ").append(tablename);
+				if (where.length() > 0)
+					querySql.append(" where ").append(where);
+			}
+			else {
+				querySql.append(tablename);
+				if (!fields.empty()) {
+					size_t starIndex = querySql.find('*');
+					if (starIndex < 10) {
+						querySql.replace(starIndex, 1, fieldsJoinStr.c_str());
+					}
+				}
+				if (where.length() > 0) {
+					size_t whereIndex = querySql.find("where");
+					if (whereIndex == querySql.npos) {
+						querySql.append(" where ").append(where);
+					}
+					else {
+						querySql.append(" and ").append(where);
+					}
+				}
+			}
+
 			return ExecQuerySql(querySql, fields);
 		}
 		else {

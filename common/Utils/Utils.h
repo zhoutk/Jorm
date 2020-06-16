@@ -2,10 +2,32 @@
 #include <windows.h>
 #include "../Rjson/Rjson.h"
 #include <sstream>
+#include <time.h>
 #include "GlobalConstants.h"
 
 class Utils {
 public:
+	static string GetLocalNowTime() {
+		time_t timep;
+		time(&timep);
+		char tmp[64];
+		struct tm nowTime;
+		localtime_s(&nowTime, &timep);
+		strftime(tmp, sizeof(tmp), "%Y-%m-%d-%H:%M:%S", &nowTime);
+		return std::string(tmp);
+	}
+
+	static string GetVectorJoinStr(vector<string> v) {
+		std::stringstream ss;
+		for (size_t i = 0; i < v.size(); ++i)
+		{
+			if (i != 0)
+				ss << ",";
+			ss << v[i];
+		}
+		return ss.str();
+	}
+
 	static Rjson MakeJsonObjectForFuncReturn(StatusCodes code) {
 		Rjson rs;
 		rs.AddValueInt("code", (int)code);
