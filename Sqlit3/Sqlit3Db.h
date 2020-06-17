@@ -78,7 +78,7 @@ public:
 				execSql.append(v);
 			else
 				execSql.append("'").append(v).append("'");
-			
+
 			return ExecNoneQuerySql(execSql);
 		}
 		else {
@@ -106,7 +106,7 @@ public:
 					string key = allKeys[i];
 					string v;
 					int vType;
-					params.GetValueAndTypeByKey(key, &v, &vType); 
+					params.GetValueAndTypeByKey(key, &v, &vType);
 					if (key.compare("id") == 0) {
 						conditionLen++;
 						if (vType == 6)
@@ -200,7 +200,7 @@ public:
 					where.append(AndJoinStr);
 				}
 
-				if (Utils::FindCharArray(QUERY_EXTRA_KEYS, (char*)k.c_str())) {
+				if (Utils::FindCharArray(QUERY_EXTRA_KEYS, (char*)k.c_str())) {   // process key
 					string whereExtra = "";
 					vector<string> ele = Utils::MakeVectorInitForString(params[k]);
 					if (ele.size() < 2 || ((k.compare("ors") == 0 || k.compare("lks") == 0) && ele.size() % 2 == 1)) {
@@ -212,10 +212,28 @@ public:
 							vector<string>(ele.begin() + 1, ele.end()).swap(ele);
 							whereExtra.append(c).append(" in ( ").append(Utils::GetVectorJoinStr(ele)).append(" )");
 						}
+						else if (k.compare("lks") == 0 || k.compare("ors") == 0) {
+							whereExtra.append(" ( ");
+							for (int j = 0; j < ele.size(); j += 2) {
+								if (j > 0) {
+									whereExtra.append(" or ");
+								}
+								whereExtra.append(ele.at(j)).append(" ");
+								string eqStr = k.compare("lks") == 0 ? " like '" : " = '";
+								string vsStr = ele.at(j + 1);
+								if (k.compare("lks") == 0) {
+									vsStr.insert(0, "%");
+									vsStr.append("%");
+								}
+								vsStr.append("'");
+								whereExtra.append(eqStr).append(vsStr);
+							}
+							whereExtra.append(" ) ");
+						}
 					}
 					where.append(whereExtra);
 				}
-				else {
+				else {				// process value
 					if (vType == kNumberType)
 						where.append(k).append(" = ").append(v);
 					else
@@ -338,7 +356,7 @@ private:
 				}
 				arr.push_back(al);
 			}
-			if(arr.empty())
+			if (arr.empty())
 				rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STQUERYEMPTY));
 			rs.AddValueObjectArray("data", arr);
 		}
