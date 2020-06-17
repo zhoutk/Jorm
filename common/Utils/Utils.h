@@ -62,10 +62,14 @@ public:
 		return ss.str();
 	}
 
-	static Rjson MakeJsonObjectForFuncReturn(StatusCodes code) {
+	static Rjson MakeJsonObjectForFuncReturn(StatusCodes code, string info = "") {
 		Rjson rs;
 		rs.AddValueInt("code", (int)code);
-		rs.AddValueString("msg", STCODEMESSAGES[(int)code]);
+		if (!info.empty()) {
+			info.insert(0, " details: ");
+			info.insert(0, STCODEMESSAGES[(int)code]);
+		}
+		rs.AddValueString("msg", info);
 		return rs;
 	}
 

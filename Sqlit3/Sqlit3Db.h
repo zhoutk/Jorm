@@ -201,13 +201,26 @@ public:
 				}
 
 				if (Utils::FindCharArray(QUERY_EXTRA_KEYS, (char*)k.c_str())) {
-					int d = 9;
+					string whereExtra = "";
+					vector<string> ele = Utils::MakeVectorInitForString(params[k]);
+					if (ele.size() < 2 || ((k.compare("ors") == 0 || k.compare("lks") == 0) && ele.size() % 2 == 1)) {
+						return Utils::MakeJsonObjectForFuncReturn(STPARAMERR, k + " is wrong.");
+					}
+					else {
+						if (k.compare("ins") == 0) {
+							string c = ele.at(0);
+							vector<string>(ele.begin() + 1, ele.end()).swap(ele);
+							whereExtra.append(c).append(" in ( ").append(Utils::GetVectorJoinStr(ele)).append(" )");
+						}
+					}
+					where.append(whereExtra);
 				}
-
-				if (vType == kNumberType)
-					where.append(k).append(" = ").append(v);
-				else
-					where.append(k).append(" = '").append(v).append("'");
+				else {
+					if (vType == kNumberType)
+						where.append(k).append(" = ").append(v);
+					else
+						where.append(k).append(" = '").append(v).append("'");
+				}
 			}
 
 			if (queryType == 1) {
