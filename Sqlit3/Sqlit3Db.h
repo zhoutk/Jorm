@@ -52,7 +52,10 @@ public:
 		if (aBusyTimeoutMs > 0)
 		{
 			const int ret = sqlite3_busy_timeout(getHandle(), aBusyTimeoutMs);
-			check(ret);
+			if (OK != ret)
+			{
+				throw "SQLite Error, return code: " + ret;
+			}
 		}
 	};
 
@@ -333,14 +336,6 @@ public:
 		return mSQLitePtr.get();
 	}
 
-	void check(const int aRet)
-	{
-		if (OK != aRet)
-		{
-			throw "SQLite Error, return code: " + aRet;
-		}
-	}
-
 private:
 	Rjson ExecQuerySql(string aQuery, vector<string> fields) {
 		Rjson rs = Utils::MakeJsonObjectForFuncReturn(STSUCCESS);
@@ -350,7 +345,8 @@ private:
 		const int ret = sqlite3_prepare_v2(handle, u8Query.c_str(), static_cast<int>(u8Query.size()), &stmt, NULL);
 		if (SQLITE_OK != ret)
 		{
-			rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR));
+			string errmsg = sqlite3_errmsg(getHandle());
+			rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR, errmsg));
 		}
 		else {
 			int insertPot = aQuery.find("where");
@@ -420,7 +416,8 @@ private:
 		const int ret = sqlite3_prepare_v2(handle, u8Query.c_str(), static_cast<int>(u8Query.size()), &stmt, NULL);
 		if (SQLITE_OK != ret)
 		{
-			rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR));
+			string errmsg = sqlite3_errmsg(getHandle());
+			rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR, errmsg));
 		}
 		else {
 			sqlite3_step(stmt);
