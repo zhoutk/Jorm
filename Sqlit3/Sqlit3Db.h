@@ -189,6 +189,8 @@ public:
 			string sort = params.GetStringValueAndRemove("sort");
 			int page = atoi(params.GetStringValueAndRemove("page").c_str());
 			int size = atoi(params.GetStringValueAndRemove("size").c_str());
+			string sum = params.GetStringValueAndRemove("sum");
+			string count = params.GetStringValueAndRemove("count");
 
 			vector<string> allKeys = params.GetAllKeys();
 			size_t len = allKeys.size();
@@ -260,8 +262,20 @@ public:
 				}
 			}
 
+			string extra = "";
+			if (!sum.empty()) {
+				vector<string> ele = Utils::MakeVectorInitFromString(sum);
+				if (ele.empty() || ele.size() % 2 == 1)
+					return Utils::MakeJsonObjectForFuncReturn(STPARAMERR, "sum is wrong.");
+				else {
+					for (size_t i = 0; i < ele.size(); i += 2) {
+						extra.append(",sum(").append(ele.at(i)).append(") as ").append(ele.at(i + 1)).append(" ");
+					}
+				}
+			}
+
 			if (queryType == 1) {
-				querySql.append("select ").append(fieldsJoinStr).append(" from ").append(tablename);
+				querySql.append("select ").append(fieldsJoinStr).append(extra).append(" from ").append(tablename);
 				if (where.length() > 0)
 					querySql.append(" where ").append(where);
 			}
@@ -325,30 +339,27 @@ private:
 			rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR));
 		}
 		else {
-			int nCol = fields.size();
-			if (fields.empty()) {
-				int insertPot = aQuery.find("where");
+			int insertPot = aQuery.find("where");
+			if (insertPot == aQuery.npos) {
+				insertPot = aQuery.find("limit");
 				if (insertPot == aQuery.npos) {
-					insertPot = aQuery.find("limit");
-					if (insertPot == aQuery.npos) {
-						insertPot = aQuery.length();
-					}
+					insertPot = aQuery.length();
 				}
-				string aQueryLimit0 = aQuery.substr(0, insertPot).append(" limit 1");
-				char** pRes = NULL;
-				int nRow = 0;
-				char* pErr = NULL;
-				sqlite3_get_table(handle, aQueryLimit0.c_str(), &pRes, &nRow, &nCol, &pErr);
-				for (int j = 0; j < nCol; j++)
-				{
-					fields.push_back(*(pRes + j));
-				}
-				if (pErr != NULL)
-				{
-					sqlite3_free(pErr);
-				}
-				sqlite3_free_table(pRes);
 			}
+			string aQueryLimit0 = aQuery.substr(0, insertPot).append(" limit 1");
+			char** pRes = NULL;
+			int nRow = 0, nCol = 0;
+			char* pErr = NULL;
+			sqlite3_get_table(handle, aQueryLimit0.c_str(), &pRes, &nRow, &nCol, &pErr);
+			for (int j = 0; j < nCol; j++)
+			{
+				fields.push_back(*(pRes + j));
+			}
+			if (pErr != NULL)
+			{
+				sqlite3_free(pErr);
+			}
+			sqlite3_free_table(pRes);
 
 			vector<Rjson> arr;
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
