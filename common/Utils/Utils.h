@@ -7,6 +7,23 @@
 
 class Utils {
 public:
+	static bool FindStartsCharArray(char** strings, char* value) {
+		char* string;
+		char* parValue;
+		while ((string = *strings++) != NULL)
+		{
+			parValue = value;
+			while (*string != '\0' && *parValue != '\0')
+			{
+				if (*string++ == *parValue++ || *parValue == '\0')
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	static bool FindCharArray(char** strings, char* value) {
 		char* string;     
 		char* parValue;  
@@ -24,7 +41,7 @@ public:
 		return false;
 	}
 
-	static vector<string> MakeVectorInitForString(string str, char flag = ',') {
+	static vector<string> MakeVectorInitFromString(string str, char flag = ',') {
 		vector<string> rs;
 		istringstream iss(str);
 		string temp;

@@ -17,10 +17,10 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//Rjson qObj("{\"id\": 1, \"password\":\"123\", \"username\":\"张三\"}");		//\"username\": \"john\"
 	Rjson qObj;		//("{")    \"username\": \"john\"    ("{\"username\":\"张三\"}")
-	qObj.AddValueString("ors", "password,123,password,张");
+	qObj.AddValueString("id", ">=,1,<=,3");
 	//string str[] = { "password", "username" };   //"username", "password", "update_time"
 	//vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
-	Rjson rs = db->select("users", qObj, Utils::MakeVectorInitForString("id,username,password,update_time"));			//, &qObj, fields
+	Rjson rs = db->select("users", qObj, Utils::MakeVectorInitFromString("id,username,password,update_time"));			//, &qObj, fields
 
 	//Rjson obj;
 	//obj.AddValueString("username", "张三");

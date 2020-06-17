@@ -202,7 +202,7 @@ public:
 
 				if (Utils::FindCharArray(QUERY_EXTRA_KEYS, (char*)k.c_str())) {   // process key
 					string whereExtra = "";
-					vector<string> ele = Utils::MakeVectorInitForString(params[k]);
+					vector<string> ele = Utils::MakeVectorInitFromString(params[k]);
 					if (ele.size() < 2 || ((k.compare("ors") == 0 || k.compare("lks") == 0) && ele.size() % 2 == 1)) {
 						return Utils::MakeJsonObjectForFuncReturn(STPARAMERR, k + " is wrong.");
 					}
@@ -214,7 +214,7 @@ public:
 						}
 						else if (k.compare("lks") == 0 || k.compare("ors") == 0) {
 							whereExtra.append(" ( ");
-							for (int j = 0; j < ele.size(); j += 2) {
+							for (size_t j = 0; j < ele.size(); j += 2) {
 								if (j > 0) {
 									whereExtra.append(" or ");
 								}
@@ -234,10 +234,25 @@ public:
 					where.append(whereExtra);
 				}
 				else {				// process value
-					if (vType == kNumberType)
-						where.append(k).append(" = ").append(v);
-					else
-						where.append(k).append(" = '").append(v).append("'");
+					if (Utils::FindStartsCharArray(QUERY_UNEQ_OPERS, (char*)v.c_str())) {
+						vector<string> vls = Utils::MakeVectorInitFromString(v);
+						if (vls.size() == 2) {
+							where.append(k).append(vls.at(0)).append("'").append(vls.at(1)).append("'");
+						}
+						else if (vls.size() == 4) {
+							where.append(k).append(vls.at(0)).append("'").append(vls.at(1)).append("' and ");
+							where.append(k).append(vls.at(2)).append("'").append(vls.at(3)).append("'");
+						}
+						else {
+							return Utils::MakeJsonObjectForFuncReturn(STPARAMERR, "not equal value is wrong.");
+						}
+					}
+					else {
+						if (vType == kNumberType)
+							where.append(k).append(" = ").append(v);
+						else
+							where.append(k).append(" = '").append(v).append("'");
+					}
 				}
 			}
 
