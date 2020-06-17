@@ -96,8 +96,8 @@ public:
 		rs.AddValueInt("code", (int)code);
 		if (!info.empty()) {
 			info.insert(0, " details: ");
-			info.insert(0, STCODEMESSAGES[(int)code]);
 		}
+		info.insert(0, STCODEMESSAGES[(int)code]);
 		rs.AddValueString("msg", info);
 		return rs;
 	}

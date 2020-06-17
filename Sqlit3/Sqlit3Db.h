@@ -19,7 +19,6 @@ const int   OK = SQLITE_OK;
 
 char* QUERY_EXTRA_KEYS[] = { "ins", "lks", "ors" };
 char* QUERY_UNEQ_OPERS[] = { ">,", ">=,", "<,", "<=,", "<>,", "=," };
-char* QUERY_STATIS_KEYS[] = { "count", "sum" };
 
 class Sqlit3Db : public Idb
 {
@@ -270,6 +269,16 @@ public:
 				else {
 					for (size_t i = 0; i < ele.size(); i += 2) {
 						extra.append(",sum(").append(ele.at(i)).append(") as ").append(ele.at(i + 1)).append(" ");
+					}
+				}
+			}
+			if (!count.empty()) {
+				vector<string> ele = Utils::MakeVectorInitFromString(count);
+				if (ele.empty() || ele.size() % 2 == 1)
+					return Utils::MakeJsonObjectForFuncReturn(STPARAMERR, "count is wrong.");
+				else {
+					for (size_t i = 0; i < ele.size(); i += 2) {
+						extra.append(",count(").append(ele.at(i)).append(") as ").append(ele.at(i + 1)).append(" ");
 					}
 				}
 			}
