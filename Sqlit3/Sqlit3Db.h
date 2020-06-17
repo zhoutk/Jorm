@@ -353,7 +353,10 @@ private:
 			sqlite3_get_table(handle, aQueryLimit0.c_str(), &pRes, &nRow, &nCol, &pErr);
 			for (int j = 0; j < nCol; j++)
 			{
-				fields.push_back(*(pRes + j));
+				string fs = *(pRes + j);
+				if (find(fields.begin(), fields.end(), fs) == fields.end()) {
+					fields.push_back(fs);
+				}
 			}
 			if (pErr != NULL)
 			{
