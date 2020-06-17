@@ -185,6 +185,7 @@ public:
 				fieldsJoinStr = Utils::GetVectorJoinStr(fields);
 			}
 
+			string fuzzy = params.GetStringValueAndRemove("fuzzy");
 			string sort = params.GetStringValueAndRemove("sort");
 			int page = atoi(params.GetStringValueAndRemove("page").c_str());
 			int size = atoi(params.GetStringValueAndRemove("size").c_str());
@@ -246,6 +247,9 @@ public:
 						else {
 							return Utils::MakeJsonObjectForFuncReturn(STPARAMERR, "not equal value is wrong.");
 						}
+					}
+					else if (!fuzzy.empty() && vType == kStringType) {
+						where.append(k).append(" like '%").append(v).append("%'");
 					}
 					else {
 						if (vType == kNumberType)

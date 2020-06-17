@@ -13,12 +13,20 @@ public:
 		while ((string = *strings++) != NULL)
 		{
 			parValue = value;
-			while (*string != '\0' && *parValue != '\0')
+			while (*string != '\0' || *parValue != '\0')
 			{
-				if (*string++ == *parValue++ || *parValue == '\0')
+				if (*string == *parValue++)
 				{
+					string++;
+					continue;
+				}
+				else if (*string == '\0') {
 					return true;
 				}
+				else {
+					break;
+				}
+				parValue++;
 			}
 		}
 		return false;
@@ -32,9 +40,13 @@ public:
 			parValue = value;
 			while (*string != '\0' && *parValue != '\0') 
 			{
-				if ((*string++ == *parValue++) && (*string == '\0' || *parValue == '\0'))  
+				if (*string++ == *parValue++)  
 				{
-					return true;
+					if((*parValue == '\0'))
+						return true;
+				}
+				else {
+					break;
 				}
 			}
 		}
