@@ -190,6 +190,7 @@ public:
 			int size = atoi(params.GetStringValueAndRemove("size").c_str());
 			string sum = params.GetStringValueAndRemove("sum");
 			string count = params.GetStringValueAndRemove("count");
+			string group = params.GetStringValueAndRemove("group");
 
 			vector<string> allKeys = params.GetAllKeys();
 			size_t len = allKeys.size();
@@ -305,6 +306,10 @@ public:
 						querySql.append(" and ").append(where);
 					}
 				}
+			}
+
+			if (!group.empty()) {
+				querySql.append(" group by ").append(group);
 			}
 
 			if (!sort.empty()) {

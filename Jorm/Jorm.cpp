@@ -17,7 +17,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//Rjson qObj("{\"id\": 1, \"password\":\"123\", \"username\":\"张三\"}");		//\"username\": \"john\"
 	Rjson qObj;		//("{")    \"username\": \"john\"    ("{\"username\":\"张三\"}")
-	qObj.AddValueString("count", "*,all6");
+	qObj.AddValueString("group", "password");
 	//string str[] = { "password", "username" };   //"username", "password", "update_time"
 	//vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
 	Rjson rs = db->select("users", qObj, Utils::MakeVectorInitFromString("id,username,password"));			//, Utils::MakeVectorInitFromString("id,username,password")
