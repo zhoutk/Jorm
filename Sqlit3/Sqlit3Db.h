@@ -216,7 +216,7 @@ public:
 				if (rc != SQLITE_OK)
 				{
 					isExecSuccess = false;
-					cout << "Transaction Fail, Error: " << zErrMsg << endl;
+					cout << "Transaction Fail, sql " << i + 1 << " is wrong. Error: " << zErrMsg << endl;
 					sqlite3_free(zErrMsg);
 					break;
 				}

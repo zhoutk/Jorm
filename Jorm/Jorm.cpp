@@ -15,7 +15,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	vector<string> sqls;
 	sqls.push_back("insert into users (password, username) values (\"'4312'\", \"test²âÊÔ\") ");
-	sqls.push_back("update users set password = 9876 where id = 14");
+	sqls.push_back("update users set passsword = 9876 where id = 14");
 	db->transGo(sqls);
 
 	//char* strTmp = "abcdefghijklmnopqrstuvwxyz";
