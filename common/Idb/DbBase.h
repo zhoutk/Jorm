@@ -42,6 +42,10 @@ public:
 		return db->insertBatch(tablename, elements);
 	}
 
+	Rjson transGo(vector<string> sqls, bool isAsync = false) {
+		return db->transGo(sqls);
+	}
+
 private:
 	string connStr;
 	Idb * db;

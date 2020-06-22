@@ -203,6 +203,40 @@ public:
 		return ExecNoneQuerySql(sql);
 	}
 
+	Rjson transGo(vector<string> sqls, bool isAsync = false) {
+		if (sqls.empty()) {
+			return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+		}
+		else {
+			char* zErrMsg = 0;
+			bool isExecSuccess = true; sqlite3_exec(getHandle(), "begin;", 0, 0, &zErrMsg);
+			for (int i = 0; i < sqls.size(); i++) {
+				string u8Query = Utils::UnicodeToU8(sqls[i]);
+				int rc = sqlite3_exec(getHandle(), u8Query.c_str(), 0, 0, &zErrMsg);
+				if (rc != SQLITE_OK)
+				{
+					isExecSuccess = false;
+					cout << "Transaction Fail, Error: " << zErrMsg << endl;
+					sqlite3_free(zErrMsg);
+					break;
+				}
+			}
+			if (isExecSuccess)
+			{
+				sqlite3_exec(getHandle(), "commit;", 0, 0, 0);
+				sqlite3_close(getHandle());
+				cout << "Transaction Success: run " << sqls.size() << " sqls." << endl;
+				return Utils::MakeJsonObjectForFuncReturn(STSUCCESS, "insertBatch success.");
+			}
+			else
+			{
+				sqlite3_exec(getHandle(), "rollback;", 0, 0, 0);
+				sqlite3_close(getHandle());
+				return Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR, zErrMsg);
+			}
+		}
+	}
+
 	Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>(), int queryType = 1) {
 		if (params.IsObject()) {
 			string querySql = "";

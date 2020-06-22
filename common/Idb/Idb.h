@@ -15,5 +15,6 @@ public:
 	virtual Rjson querySql(string sql, Rjson& params = Rjson(), vector<string> filelds = vector<string>()) = 0;
 	virtual Rjson execSql(string sql) = 0;
 	virtual Rjson insertBatch(string tablename, vector<Rjson> elements) = 0;
+	virtual Rjson transGo(vector<string> sqls, bool isAsync = false) = 0;
 };
 
