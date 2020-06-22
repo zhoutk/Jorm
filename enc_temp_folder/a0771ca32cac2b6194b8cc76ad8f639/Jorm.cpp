@@ -13,6 +13,9 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	DbBase * db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
 
+	/*Rjson qObjCreate("{\"id\":9}");
+	Rjson rs = db->remove("users", qObjCreate);*/
+
 	vector<Rjson> els;
 	char* strTmp = "abcdefghijklmnopqrstuvwxyz";
 	for (int i = 0; i < 100; i++) {
@@ -28,12 +31,40 @@ int _tmain(int argc, _TCHAR* argv[])
 		qObj.AddValueString("username", uname);
 		els.push_back(qObj);
 	}
-
+	//Rjson qObj("{\"password\":\"18293\", \"username\":\"张三丰来了\"}");		//\"username\": \"john\"
+	//Rjson qObj;		//("{")    \"username\": \"john\"    ("{\"username\":\"张三\"}")
+	//qObj.AddValueString("group", "password");
+	//string str[] = { "password", "username" };   //"username", "password", "update_time"
+	//vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
+	//Rjson qObj2("{\"password\":\"2222\", \"username\":\"张小二来了\"}");
 	clock_t start = clock();
+
 	Rjson rs = db->insertBatch("users", els);			//, Utils::MakeVectorInitFromString("id,username,password")
+
 	clock_t end = clock();
 	cout << "花费了" << (double)(end - start) / CLOCKS_PER_SEC << "秒" << endl;
 
+	//Rjson obj;
+	//obj.AddValueString("username", "张三");
+	//string str[] = { "password", "123", "321" };   //"username", "password", "update_time"
+	//vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
+	//obj.AddValueArray("ins", fields);
+
+	//string dd = obj.GetStringValueAndRemove("username");
+
+	//string cc = obj["ins"];
+
+	//Rjson arr(cc);
+
+	//vector<string> list = arr.GetStringArray();
+
+	
+
+	/*string str[] = { "id","password", "username" };
+	vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
+	Rjson rs = db->querySql("select * from users where id = 1", obj );*/
+
+	//cout << "1111111 the result is : " << rs.GetJsonString() << endl;
 
 	vector<string> keys = rs.GetAllKeys();
 
