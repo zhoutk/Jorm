@@ -15,12 +15,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	/*Rjson qObjCreate("{\"id\":9}");
 	Rjson rs = db->remove("users", qObjCreate);*/
 
-	//Rjson qObj("{\"id\": 1, \"password\":\"123\", \"username\":\"张三\"}");		//\"username\": \"john\"
-	Rjson qObj;		//("{")    \"username\": \"john\"    ("{\"username\":\"张三\"}")
-	qObj.AddValueString("group", "password");
+	vector<Rjson> els;
+	Rjson qObj("{\"password\":\"18293\", \"username\":\"张三丰来了\"}");		//\"username\": \"john\"
+	//Rjson qObj;		//("{")    \"username\": \"john\"    ("{\"username\":\"张三\"}")
+	//qObj.AddValueString("group", "password");
 	//string str[] = { "password", "username" };   //"username", "password", "update_time"
 	//vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
-	Rjson rs = db->select("users", qObj, Utils::MakeVectorInitFromString("id,username,password"));			//, Utils::MakeVectorInitFromString("id,username,password")
+	els.push_back(qObj);
+	Rjson qObj2("{\"password\":\"2222\", \"username\":\"张小二来了\"}");
+	els.push_back(qObj2);
+	Rjson rs = db->insertBatch("users", els);			//, Utils::MakeVectorInitFromString("id,username,password")
 
 	//Rjson obj;
 	//obj.AddValueString("username", "张三");

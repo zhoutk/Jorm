@@ -38,6 +38,10 @@ public:
 		return db->execSql(sql);
 	}
 
+	Rjson insertBatch(string tablename, vector<Rjson> elements) {
+		return db->insertBatch(tablename, elements);
+	}
+
 private:
 	string connStr;
 	Idb * db;

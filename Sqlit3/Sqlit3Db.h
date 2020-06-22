@@ -176,6 +176,33 @@ public:
 		return select(sql, params, filelds, 2);
 	}
 
+	Rjson insertBatch(string tablename, vector<Rjson> elements) {
+		string sql = "insert into ";
+		if (elements.empty()) {
+			return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+		}
+		else {
+			string keyStr = " (";
+			keyStr.append(Utils::GetVectorJoinStr(elements[0].GetAllKeys())).append(" ) ");
+			for (size_t i = 0; i < elements.size(); i++) {
+				vector<string> keys = elements[i].GetAllKeys();
+				string valueStr = " select ";
+				for (size_t j = 0; j < keys.size(); j++) {
+					valueStr.append("'").append(elements[i][keys[j]]).append("'");
+					if (j < keys.size() - 1) {
+						valueStr.append(",");
+					}
+				}
+				if (i < elements.size() - 1) {
+					valueStr.append(" union all ");
+				}
+				keyStr.append(valueStr);
+			}
+			sql.append(tablename).append(keyStr);
+		}
+		return ExecNoneQuerySql(sql);
+	}
+
 	Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>(), int queryType = 1) {
 		if (params.IsObject()) {
 			string querySql = "";
