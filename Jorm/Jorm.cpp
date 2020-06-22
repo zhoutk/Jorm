@@ -13,6 +13,25 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	DbBase * db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
 
+	//char* strTmp = "abcdefghijklmnopqrstuvwxyz";
+	//clock_t start = clock();
+	//for (int i = 0; i < 100; i++) {
+	//	Rjson qObj;
+	//	qObj.AddValueInt("password", rand());
+	//	int len = rand() % 5 + 5;
+	//	string uname = "";
+	//	for (int j = 0; j < len; j++) {
+	//		int dd = rand() % 26;
+	//		char ddd = strTmp[rand() % 26];
+	//		uname.append(1, strTmp[rand() % 26]);
+	//	}
+	//	qObj.AddValueString("username", uname);
+	//	db->create("users", qObj);
+	//}
+	//clock_t end = clock();
+	//cout << "花费了" << (double)(end - start) / CLOCKS_PER_SEC << "秒" << endl;
+
+	vector<Rjson> els;
 	char* strTmp = "abcdefghijklmnopqrstuvwxyz";
 	clock_t start = clock();
 	for (int i = 0; i < 100; i++) {
@@ -26,31 +45,12 @@ int _tmain(int argc, _TCHAR* argv[])
 			uname.append(1, strTmp[rand() % 26]);
 		}
 		qObj.AddValueString("username", uname);
-		db->create("users", qObj);
+		els.push_back(qObj);
 	}
+
+	Rjson rs = db->insertBatch("users", els);			//, Utils::MakeVectorInitFromString("id,username,password")
 	clock_t end = clock();
 	cout << "花费了" << (double)(end - start) / CLOCKS_PER_SEC << "秒" << endl;
-
-	//vector<Rjson> els;
-	//char* strTmp = "abcdefghijklmnopqrstuvwxyz";
-	//for (int i = 0; i < 100; i++) {
-	//	Rjson qObj;
-	//	qObj.AddValueInt("password", rand());
-	//	int len = rand() % 5 + 5;
-	//	string uname = "";
-	//	for (int j = 0; j < len; j++) {
-	//		int dd = rand() % 26;
-	//		char ddd = strTmp[rand() % 26];
-	//		uname.append(1, strTmp[rand() % 26]);
-	//	}
-	//	qObj.AddValueString("username", uname);
-	//	els.push_back(qObj);
-	//}
-
-	//clock_t start = clock();
-	//Rjson rs = db->insertBatch("users", els);			//, Utils::MakeVectorInitFromString("id,username,password")
-	//clock_t end = clock();
-	//cout << "花费了" << (double)(end - start) / CLOCKS_PER_SEC << "秒" << endl;
 
 
 	//vector<string> keys = rs.GetAllKeys();
