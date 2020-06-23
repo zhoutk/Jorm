@@ -89,6 +89,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Mysql\Mysql.vcxproj">
+      <Project>{c9e6715d-3021-4d39-b07f-f54670d1f029}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Sqlit3\Sqlit3.vcxproj">
       <Project>{60529710-c08a-4213-a8b4-90d27e08c392}</Project>
     </ProjectReference>

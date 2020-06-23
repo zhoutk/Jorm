@@ -58,6 +58,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	//cout << "花费了" << (double)(end - start) / CLOCKS_PER_SEC << "秒" << endl;
 
 	Rjson obj;
+	obj.AddValueString("username", "张");
+	obj.AddValueString("password", "123");
+	obj.AddValueString("fuzzy", "1");
 	Rjson rs = db->select("users", obj);
 
 	vector<string> keys = rs.GetAllKeys();
@@ -87,12 +90,12 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << "key: " << key << ", value: " << v << endl;
 	}
 
-	obj.AddValueString("username", "张三");
-	rs = db->select("users", obj);
-	cout << "22222222 the result is : " << rs.GetJsonString() << endl;
+	//obj.AddValueString("username", "张三");
+	//rs = db->select("users", obj);
+	//cout << "22222222 the result is : " << rs.GetJsonString() << endl;
 
-	rs = db->select("users", obj);
-	cout << "22222222 the result is : " << rs.GetJsonString() << endl;
+	//rs = db->select("users", obj);
+	//cout << "22222222 the result is : " << rs.GetJsonString() << endl;
 
 	system("pause");
 	return 0;
