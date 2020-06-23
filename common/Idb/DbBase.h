@@ -1,10 +1,14 @@
 #pragma once
 #include "Idb.h"
 #include "../Sqlit3/Sqlit3Db.h"
+#include "../Mysql/MysqlDb.h"
 
 class DbBase
 {
 public:
+	DbBase(string dbhost, string dbuser, string dbpwd, string dbname, int port = 3306) {
+		db = new MysqlDb(connStr, dbuser, dbpwd, dbname, port);
+	}
 	DbBase(string connStr) : connStr(connStr) {
 		db = new Sqlit3Db(connStr);
 	};
