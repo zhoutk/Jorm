@@ -39,7 +39,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	vector<Rjson> els;
 	char* strTmp = "abcdefghijklmnopqrstuvwxyz";
 	clock_t start = clock();
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 4; i++) {
 		Rjson qObj;
 		qObj.AddValueInt("password", rand());
 		int len = rand() % 5 + 5;

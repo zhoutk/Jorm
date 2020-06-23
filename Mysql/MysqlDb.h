@@ -339,14 +339,19 @@ namespace Mysql {
 			}
 			else {
 				string keyStr = " ( ";
+				string updateStr = "";
 				keyStr.append(Utils::GetVectorJoinStr(elements[0].GetAllKeys())).append(" ) values ");
 				for (size_t i = 0; i < elements.size(); i++) {
 					vector<string> keys = elements[i].GetAllKeys();
 					string valueStr = " ( ";
 					for (size_t j = 0; j < keys.size(); j++) {
+						if(i == 0)
+							updateStr.append(keys[j]).append(" = values(").append(keys[j]).append(")");
 						valueStr.append("'").append(elements[i][keys[j]]).append("'");
 						if (j < keys.size() - 1) {
 							valueStr.append(",");
+							if (i == 0)
+								updateStr.append(",");
 						}
 					}
 					valueStr.append(" )");
@@ -355,7 +360,7 @@ namespace Mysql {
 					}
 					keyStr.append(valueStr);
 				}
-				sql.append(tablename).append(keyStr);
+				sql.append(tablename).append(keyStr).append(" on duplicate key update ").append(updateStr);
 			}
 			return ExecNoneQuerySql(sql);
 		}
