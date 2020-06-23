@@ -368,7 +368,40 @@ namespace Mysql {
 
 		Rjson transGo(vector<string> sqls, bool isAsync = false) override
 		{
-			throw std::logic_error("The method or operation is not implemented.");
+			if (sqls.empty()) {
+				return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+			}
+			else {
+				bool isExecSuccess = true;
+				string errmsg = "Running transaction error: ";
+				MYSQL* mysql = GetConnection();
+				if (mysql == nullptr)
+					return Utils::MakeJsonObjectForFuncReturn(STDBCONNECTERR);
+
+				mysql_query(mysql, "begin;");
+				for (size_t i = 0; i < sqls.size(); i++) {
+					string u8Query = Utils::UnicodeToU8(sqls[i]);
+					if (mysql_query(mysql, u8Query.c_str()))
+					{
+						isExecSuccess = false;
+						errmsg.append(Utils::U8ToUnicode((char*)mysql_error(mysql))).append(". error code: ");
+						errmsg.append(Utils::IntTransToString(mysql_errno(mysql)));
+						cout << errmsg << endl;
+						break;
+					}
+				}
+				if (isExecSuccess)
+				{
+					mysql_query(mysql, "commit;");
+					cout << "Transaction Success: run " << sqls.size() << " sqls." << endl;
+					return Utils::MakeJsonObjectForFuncReturn(STSUCCESS, "insertBatch success.");
+				}
+				else
+				{
+					mysql_query(mysql, "rollback;");
+					return Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR, errmsg);
+				}
+			}
 		}
 
 		~MysqlDb()
@@ -390,9 +423,8 @@ namespace Mysql {
 				return Utils::MakeJsonObjectForFuncReturn(STDBCONNECTERR);
 			if (mysql_query(mysql, u8Query.c_str()))
 			{
-				string errmsg = "err at line: ";
-				errmsg.append(Utils::IntTransToString(__LINE__)).append(". ");
-				errmsg.append(mysql_error(mysql)).append(". error code: ");
+				string errmsg = "";
+				errmsg.append(Utils::U8ToUnicode((char*)mysql_error(mysql))).append(". error code: ");
 				errmsg.append(Utils::IntTransToString(mysql_errno(mysql)));
 				return rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR, errmsg));
 			}
@@ -433,9 +465,8 @@ namespace Mysql {
 
 			if (mysql_query(mysql, u8Query.c_str()))
 			{
-				string errmsg = "err at line: ";
-				errmsg.append(Utils::IntTransToString(__LINE__)).append(". ");
-				errmsg.append(mysql_error(mysql)).append(". error code: ");
+				string errmsg = "";
+				errmsg.append(Utils::U8ToUnicode((char*)mysql_error(mysql))).append(". error code: ");
 				errmsg.append(Utils::IntTransToString(mysql_errno(mysql)));
 				return rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR, errmsg));
 			}

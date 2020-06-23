@@ -210,7 +210,8 @@ namespace Sqlit3 {
 			}
 			else {
 				char* zErrMsg = 0;
-				bool isExecSuccess = true; sqlite3_exec(getHandle(), "begin;", 0, 0, &zErrMsg);
+				bool isExecSuccess = true; 
+				sqlite3_exec(getHandle(), "begin;", 0, 0, &zErrMsg);
 				for (size_t i = 0; i < sqls.size(); i++) {
 					string u8Query = Utils::UnicodeToU8(sqls[i]);
 					int rc = sqlite3_exec(getHandle(), u8Query.c_str(), 0, 0, &zErrMsg);
