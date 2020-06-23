@@ -319,6 +319,64 @@ namespace Mysql {
 			}
 		}
 
+		Rjson querySql(string sql, Rjson& params = Rjson(), vector<string> filelds = vector<string>()) override
+		{
+			return select(sql, params, filelds, 2);
+		}
+
+
+		Rjson execSql(string sql) override
+		{
+			return ExecNoneQuerySql(sql);
+		}
+
+
+		Rjson insertBatch(string tablename, vector<Rjson> elements) override
+		{
+			string sql = "insert into ";
+			if (elements.empty()) {
+				return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+			}
+			else {
+				string keyStr = " ( ";
+				keyStr.append(Utils::GetVectorJoinStr(elements[0].GetAllKeys())).append(" ) values ");
+				for (size_t i = 0; i < elements.size(); i++) {
+					vector<string> keys = elements[i].GetAllKeys();
+					string valueStr = " ( ";
+					for (size_t j = 0; j < keys.size(); j++) {
+						valueStr.append("'").append(elements[i][keys[j]]).append("'");
+						if (j < keys.size() - 1) {
+							valueStr.append(",");
+						}
+					}
+					valueStr.append(" )");
+					if (i < elements.size() - 1) {
+						valueStr.append(",");
+					}
+					keyStr.append(valueStr);
+				}
+				sql.append(tablename).append(keyStr);
+			}
+			return ExecNoneQuerySql(sql);
+		}
+
+
+		Rjson transGo(vector<string> sqls, bool isAsync = false) override
+		{
+			throw std::logic_error("The method or operation is not implemented.");
+		}
+
+		~MysqlDb()
+		{
+			while (pool.size())
+			{
+				mysql_close(pool.back());
+				pool.pop_back();
+			}
+		}
+
+	private:
+
 		Rjson ExecQuerySql(string aQuery, vector<string> fields) {
 			Rjson rs = Utils::MakeJsonObjectForFuncReturn(STSUCCESS);
 			string u8Query = Utils::UnicodeToU8(aQuery);
@@ -384,38 +442,6 @@ namespace Mysql {
 			}
 			cout << "SQL: " << aQuery << endl;
 			return rs;
-		}
-
-		Rjson querySql(string sql, Rjson& params = Rjson(), vector<string> filelds = vector<string>()) override
-		{
-			return select(sql, params, filelds, 2);
-		}
-
-
-		Rjson execSql(string sql) override
-		{
-			return ExecNoneQuerySql(sql);
-		}
-
-
-		Rjson insertBatch(string tablename, vector<Rjson> elements) override
-		{
-			throw std::logic_error("The method or operation is not implemented.");
-		}
-
-
-		Rjson transGo(vector<string> sqls, bool isAsync = false) override
-		{
-			throw std::logic_error("The method or operation is not implemented.");
-		}
-
-		~MysqlDb()
-		{
-			while (pool.size())
-			{
-				mysql_close(pool.back());
-				pool.pop_back();
-			}
 		}
 
 	private:
