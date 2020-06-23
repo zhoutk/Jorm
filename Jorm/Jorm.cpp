@@ -12,11 +12,16 @@ using namespace std;
 int _tmain(int argc, _TCHAR* argv[])
 {
 	DbBase * db = new DbBase("localhost", "root", "123456", "jorm");
+	Rjson obj;
+	obj.AddValueString("username", "²åÈë²âÊÔ");
+	obj.AddValueInt("password", 3245);
+	Rjson rs = db->create("users", obj);
+	cout << "The result is : " << rs.GetJsonString() << endl;
 
-	vector<string> sqls;
+	/*vector<string> sqls;
 	sqls.push_back("insert into users (password, username) values (\"'4312'\", \"test²âÊÔ\") ");
 	sqls.push_back("update users set passw5ord = 9876 where id = 14");
-	db->transGo(sqls);
+	db->transGo(sqls);*/
 
 	//char* strTmp = "abcdefghijklmnopqrstuvwxyz";
 	//clock_t start = clock();
