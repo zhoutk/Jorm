@@ -87,7 +87,12 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << "key: " << key << ", value: " << v << endl;
 	}
 
-	//cout << "22222222 the result is : " << rs.GetJsonString() << endl;
+	obj.AddValueString("username", "ÕÅÈý");
+	rs = db->select("users", obj);
+	cout << "22222222 the result is : " << rs.GetJsonString() << endl;
+
+	rs = db->select("users", obj);
+	cout << "22222222 the result is : " << rs.GetJsonString() << endl;
 
 	system("pause");
 	return 0;

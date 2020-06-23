@@ -4,16 +4,18 @@
 #include "../common/Utils/Utils.h"
 #include "../common/Utils/GlobalConstants.h"
 #include "MySQL-C-Api-6.1/include/mysql.h"
-#include "list"
 
 using namespace std;
+
+const int MAXCONN = 2;
 
 class MysqlDb : public Idb {
 
 private:
 	MYSQL* GetConnection() {
-		int index = rand() % maxConn;
-		if (pool.at(index) == NULL) {
+		//srand((unsigned int)(time(NULL)));
+		size_t index = (rand() % maxConn) + 1;
+		if (index > pool.size()) {
 			MYSQL* pmysql;
 			pmysql = mysql_init((MYSQL*)NULL);
 			if (pmysql != NULL)
@@ -24,12 +26,15 @@ private:
 					return pmysql;
 				}
 			}
+			return nullptr;
 		}
-		return NULL;
+		else {
+			return pool.at(index - 1);
+		}
 	}
 
 public:
-	MysqlDb(string connStr) :connStr(connStr), maxConn(1) {
+	MysqlDb(string connStr) :connStr(connStr), maxConn(MAXCONN) {
 
 	}
 
@@ -38,13 +43,19 @@ public:
 	}
 
 	MysqlDb(string dbhost, string dbuser, string dbpwd, string dbname) :
-		dbhost(dbhost), dbuser(dbuser), dbpwd(dbpwd), dbname(dbname), dbport(3306)
+		dbhost(dbhost), dbuser(dbuser), dbpwd(dbpwd), dbname(dbname), dbport(3306), maxConn(MAXCONN)
 	{
 
 	}
 
-	MysqlDb(string dbhost, string dbuser, string dbpwd, string dbname, int dbport) : 
-		dbhost(dbhost), dbuser(dbuser), dbpwd(dbpwd), dbname(dbname), dbport(dbport)
+	MysqlDb(string dbhost, string dbuser, string dbpwd, string dbname, int dbport, int maxConn) :
+		dbhost(dbhost), dbuser(dbuser), dbpwd(dbpwd), dbname(dbname), dbport(dbport), maxConn(maxConn)
+	{
+
+	}
+
+	MysqlDb(string dbhost, string dbuser, string dbpwd, string dbname, int dbport) :
+		dbhost(dbhost), dbuser(dbuser), dbpwd(dbpwd), dbname(dbname), dbport(dbport), maxConn(MAXCONN)
 	{
 
 	}
@@ -93,6 +104,43 @@ public:
 
 	Rjson ExecQuerySql(string aQuery, vector<string> fields) {
 		Rjson rs = Utils::MakeJsonObjectForFuncReturn(STSUCCESS);
+		string u8Query = Utils::UnicodeToU8(aQuery);
+		MYSQL* mysql = GetConnection();
+		if(mysql == nullptr)
+			return Utils::MakeJsonObjectForFuncReturn(STDBCONNECTERR);
+		if (mysql_query(mysql, u8Query.c_str()))
+		{
+			string errmsg = "err at line: ";
+			errmsg.append(Utils::IntTransToString(__LINE__)).append(". ");
+			errmsg.append(mysql_error(mysql)).append(". error code: ");
+			errmsg.append(Utils::IntTransToString(mysql_errno(mysql)));
+			return rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR, errmsg));
+		}
+		else
+		{
+			MYSQL_RES* result = mysql_use_result(mysql);
+			if (result != NULL)
+			{
+				MYSQL_ROW row;
+				int num_fields = mysql_num_fields(result);
+				MYSQL_FIELD* fields = mysql_fetch_fields(result);
+				vector<Rjson> arr;
+				while ((row = mysql_fetch_row(result)) && row != NULL)
+				{
+					Rjson al;
+					for (int i = 0; i < num_fields; ++i)
+					{
+						al.AddValueString(fields[i].name, Utils::U8ToUnicode(row[i]));
+					}
+					arr.push_back(al);
+				}
+				if (arr.empty())
+					rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STQUERYEMPTY));
+				rs.AddValueObjectArray("data", arr);
+			}
+			mysql_free_result(result);
+		}
+		cout << "SQL: " << aQuery << endl;
 		return rs;
 	}
 

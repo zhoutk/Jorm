@@ -7,7 +7,7 @@ class DbBase
 {
 public:
 	DbBase(string dbhost, string dbuser, string dbpwd, string dbname, int port = 3306) {
-		db = new MysqlDb(connStr, dbuser, dbpwd, dbname, port);
+		db = new MysqlDb(dbhost, dbuser, dbpwd, dbname, port);
 	}
 	DbBase(string connStr) : connStr(connStr) {
 		db = new Sqlit3Db(connStr);
