@@ -104,6 +104,8 @@ public:
 
 	static char* U8ToUnicode(char* szU8)
 	{
+		if (szU8 == nullptr || strlen(szU8) == 0)
+			return "";
 		//UTF8 to Unicode
 		//预转换，得到所需空间的大小
 		int wcsLen = ::MultiByteToWideChar(CP_UTF8, NULL, szU8, strlen(szU8), NULL, 0);
@@ -124,6 +126,8 @@ public:
 
 	static char* UnicodeToU8(string str)
 	{
+		if (str.size() == 0)
+			return "";
 		wchar_t* wszString = multiByteToWideChar(str);
 		// unicode to UTF8
 		//预转换，得到所需空间的大小，这次用的函数和上面名字相反

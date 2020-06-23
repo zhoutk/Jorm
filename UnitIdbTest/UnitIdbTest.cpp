@@ -7,13 +7,15 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UnitIdbTest
 {
-	char* dbStr = "D:\\codes\\Jorm\\Sqlit3\\db.db";
+	//char* dbStr = "D:\\codes\\Jorm\\Sqlit3\\db.db";
+	//DbBase* db = new DbBase(dbStr);
+	DbBase* db = new DbBase("localhost", "root", "123456", "jorm");
+
 	TEST_CLASS(UnitIdbTest)
 	{
 	public:
 		TEST_METHOD(TestDbQuerySelectStar)							//test select * from ...
 		{
-			DbBase* db = new DbBase(dbStr);
 			Rjson qObj;
 			Rjson rs1 = db->select("users", qObj);
 			string v1;
@@ -23,7 +25,6 @@ namespace UnitIdbTest
 		}
 		TEST_METHOD(TestDbQuerySelectFields)						//test select id,..... from ...
 		{
-			DbBase* db = new DbBase(dbStr);
 			Rjson qObj;
 			string str[] = { "id","password", "username" };
 			vector<string> fields(str, str + sizeof(str) / sizeof(str[0]));
@@ -36,7 +37,6 @@ namespace UnitIdbTest
 		}
 		TEST_METHOD(TestDbQuerySelectEqualResultExistAndUpdate)						//test select filed condition equal & result exist & value is chinese
 		{
-			DbBase* db = new DbBase(dbStr);
 			Rjson qObj("{\"username\":\"张三\"}");
 			Rjson rs = db->select("users", qObj);
 
@@ -66,7 +66,6 @@ namespace UnitIdbTest
 
 		TEST_METHOD(TestDbQueryManualSelectStar)						//test manual sql, not fileds
 		{
-			DbBase* db = new DbBase(dbStr);
 			Rjson rs = db->querySql("select * from users where id = 1");
 
 			string v;
@@ -79,7 +78,6 @@ namespace UnitIdbTest
 
 		TEST_METHOD(TestDbQueryManualSelectFields)						//test manual sql, with fileds
 		{
-			DbBase* db = new DbBase(dbStr);
 			Rjson obj;
 			obj.AddValueString("username", "张三");
 			string str[] = { "id","password", "username" };
@@ -95,7 +93,6 @@ namespace UnitIdbTest
 		}
 		TEST_METHOD(TestDbQuerySelectEqualResultNotExist)						//test select filed condition equal & result not exist
 		{
-			DbBase* db = new DbBase(dbStr);
 			Rjson qObj("{\"username\":\"张三丰不存在\"}");
 			Rjson rs = db->select("users", qObj);
 
@@ -108,7 +105,6 @@ namespace UnitIdbTest
 		}
 		TEST_METHOD(TestDbQueryParamsError)						//test params isObject is false
 		{
-			DbBase* db = new DbBase(dbStr);
 			Rjson qObj("{");
 			Rjson rs = db->select("users", qObj);
 
@@ -119,7 +115,6 @@ namespace UnitIdbTest
 		}
 		TEST_METHOD(TestDbQueryFiledError)						//test select filed is not exist
 		{
-			DbBase* db = new DbBase(dbStr);
 			Rjson qObj("{\"username1\":\"张三\"}");
 			Rjson rs = db->select("users", qObj);
 
@@ -130,7 +125,6 @@ namespace UnitIdbTest
 		}
 		TEST_METHOD(TestDbCURDRecord)						//test curd
 		{
-			DbBase* db = new DbBase(dbStr);
 			Rjson qObj("{\"username\":\"麻子测试\", \"password\":1298}");
 			Rjson rs = db->create("users", qObj);
 

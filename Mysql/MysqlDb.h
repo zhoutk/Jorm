@@ -3,7 +3,7 @@
 #include "../common//Idb/Idb.h"
 #include "../common/Utils/Utils.h"
 #include "../common/Utils/GlobalConstants.h"
-#include "MySQL-C-Api-6.1/include/mysql.h"
+#include "../thirds/MySQL-C-Api-6.1/include/mysql.h"
 
 using namespace std;
 
@@ -52,6 +52,111 @@ public:
 	{
 
 	}
+
+	Rjson create(string tablename, Rjson& params) override
+	{
+		if (params.IsObject()) {
+			string execSql = "insert into ";
+			execSql.append(tablename).append(" ");
+
+			vector<string> allKeys = params.GetAllKeys();
+			size_t len = allKeys.size();
+			string fields = "", vs = "";
+			for (size_t i = 0; i < len; i++) {
+				string key = allKeys[i];
+				fields.append(key);
+				string v;
+				int vType;
+				params.GetValueAndTypeByKey(key, &v, &vType);
+				if (vType == 6)
+					vs.append(v);
+				else
+					vs.append("'").append(v).append("'");
+				if (i < len - 1) {
+					fields.append(",");
+					vs.append(",");
+				}
+			}
+			execSql.append("(").append(fields).append(") values (").append(vs).append(")");
+			return ExecNoneQuerySql(execSql);
+		}
+		else {
+			return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+		}
+	}
+
+
+	Rjson update(string tablename, Rjson& params) override
+	{
+		if (params.IsObject()) {
+			string execSql = "update ";
+			execSql.append(tablename).append(" set ");
+
+			vector<string> allKeys = params.GetAllKeys();
+
+			vector<string>::iterator iter = find(allKeys.begin(), allKeys.end(), "id");
+			if (iter == allKeys.end()) {
+				return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+			}
+			else {
+				size_t len = allKeys.size();
+				size_t conditionLen = len - 2;
+				string fields = "", where = " where id = ";
+				for (size_t i = 0; i < len; i++) {
+					string key = allKeys[i];
+					string v;
+					int vType;
+					params.GetValueAndTypeByKey(key, &v, &vType);
+					if (key.compare("id") == 0) {
+						conditionLen++;
+						if (vType == 6)
+							where.append(v);
+						else
+							where.append("'").append(v).append("'");
+					}
+					else {
+						fields.append(key).append(" = ");
+						if (vType == 6)
+							fields.append(v);
+						else
+							fields.append("'").append(v).append("'");
+						if (i < conditionLen) {
+							fields.append(",");
+						}
+					}
+				}
+				execSql.append(fields).append(where);
+				return ExecNoneQuerySql(execSql);
+			}
+		}
+		else {
+			return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+		}
+	}
+
+
+	Rjson remove(string tablename, Rjson& params) override
+	{
+		if (params.IsObject()) {
+			string execSql = "delete from ";
+			execSql.append(tablename).append(" where id = ");
+
+			string v;
+			int vType;
+			params.GetValueAndTypeByKey("id", &v, &vType);
+
+			if (vType == 6)
+				execSql.append(v);
+			else
+				execSql.append("'").append(v).append("'");
+
+			return ExecNoneQuerySql(execSql);
+		}
+		else {
+			return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+		}
+	}
+
 
 	Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>(), int queryType = 1) override
 	{
@@ -213,7 +318,7 @@ public:
 		Rjson rs = Utils::MakeJsonObjectForFuncReturn(STSUCCESS);
 		string u8Query = Utils::UnicodeToU8(aQuery);
 		MYSQL* mysql = GetConnection();
-		if(mysql == nullptr)
+		if (mysql == nullptr)
 			return Utils::MakeJsonObjectForFuncReturn(STDBCONNECTERR);
 		if (mysql_query(mysql, u8Query.c_str()))
 		{
@@ -251,34 +356,40 @@ public:
 		return rs;
 	}
 
+	Rjson ExecNoneQuerySql(string aQuery) {
+		Rjson rs = Utils::MakeJsonObjectForFuncReturn(STSUCCESS);
+		string u8Query = Utils::UnicodeToU8(aQuery);
+		MYSQL* mysql = GetConnection();
+		if (mysql == nullptr)
+			return Utils::MakeJsonObjectForFuncReturn(STDBCONNECTERR);
 
-	Rjson create(string tablename, Rjson& params) override
-	{
-		throw std::logic_error("The method or operation is not implemented.");
+		if (mysql_query(mysql, u8Query.c_str()))
+		{
+			string errmsg = "err at line: ";
+			errmsg.append(Utils::IntTransToString(__LINE__)).append(". ");
+			errmsg.append(mysql_error(mysql)).append(". error code: ");
+			errmsg.append(Utils::IntTransToString(mysql_errno(mysql)));
+			return rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR, errmsg));
+		}
+		else {
+			int affected = (int)mysql_affected_rows(mysql);
+			int newId = (int)mysql_insert_id(mysql);
+			rs.AddValueInt("affected", affected);
+			rs.AddValueInt("newId", newId);
+		}
+		cout << "SQL: " << aQuery << endl;
+		return rs;
 	}
-
-
-	Rjson update(string tablename, Rjson& params) override
-	{
-		throw std::logic_error("The method or operation is not implemented.");
-	}
-
-
-	Rjson remove(string tablename, Rjson& params) override
-	{
-		throw std::logic_error("The method or operation is not implemented.");
-	}
-
 
 	Rjson querySql(string sql, Rjson& params = Rjson(), vector<string> filelds = vector<string>()) override
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return select(sql, params, filelds, 2);
 	}
 
 
 	Rjson execSql(string sql) override
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return ExecNoneQuerySql(sql);
 	}
 
 
