@@ -3,14 +3,16 @@
 #include "../Sqlit3/Sqlit3Db.h"
 #include "../Mysql/MysqlDb.h"
 
+
+
 class DbBase
 {
 public:
 	DbBase(string dbhost, string dbuser, string dbpwd, string dbname, int port = 3306) {
-		db = new MysqlDb(dbhost, dbuser, dbpwd, dbname, port);
+		db = new Mysql::MysqlDb(dbhost, dbuser, dbpwd, dbname, port);
 	}
 	DbBase(string connStr) : connStr(connStr) {
-		db = new Sqlit3Db(connStr);
+		db = new Sqlit3::Sqlit3Db(connStr);
 	};
 	~DbBase() {
 		if (db) {
