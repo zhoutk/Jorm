@@ -49,7 +49,7 @@ namespace Postgres {
 
 	public:
 
-		PostgresDb(string connStr) :connStr(connStr) {
+		PostgresDb(string connStr) :connStr(connStr), maxConn(MAXCONN) {
 		}
 
 		Rjson create(string tablename, Rjson& params)
@@ -87,25 +87,85 @@ namespace Postgres {
 
 		Rjson update(string tablename, Rjson& params)
 		{
-			throw std::logic_error("The method or operation is not implemented.");
+			if (params.IsObject()) {
+				string execSql = "update ";
+				execSql.append(tablename).append(" set ");
+
+				vector<string> allKeys = params.GetAllKeys();
+
+				vector<string>::iterator iter = find(allKeys.begin(), allKeys.end(), "id");
+				if (iter == allKeys.end()) {
+					return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+				}
+				else {
+					size_t len = allKeys.size();
+					size_t conditionLen = len - 2;
+					string fields = "", where = " where id = ";
+					for (size_t i = 0; i < len; i++) {
+						string key = allKeys[i];
+						string v;
+						int vType;
+						params.GetValueAndTypeByKey(key, &v, &vType);
+						if (key.compare("id") == 0) {
+							conditionLen++;
+							if (vType == 6)
+								where.append(v);
+							else
+								where.append("'").append(v).append("'");
+						}
+						else {
+							fields.append(key).append(" = ");
+							if (vType == 6)
+								fields.append(v);
+							else
+								fields.append("'").append(v).append("'");
+							if (i < conditionLen) {
+								fields.append(",");
+							}
+						}
+					}
+					execSql.append(fields).append(where);
+					return ExecNoneQuerySql(execSql);
+				}
+			}
+			else {
+				return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+			}
 		}
 
 
 		Rjson remove(string tablename, Rjson& params)
 		{
-			throw std::logic_error("The method or operation is not implemented.");
+			if (params.IsObject()) {
+				string execSql = "delete from ";
+				execSql.append(tablename).append(" where id = ");
+
+				string v;
+				int vType;
+				params.GetValueAndTypeByKey("id", &v, &vType);
+
+				if (vType == 6)
+					execSql.append(v);
+				else
+					execSql.append("'").append(v).append("'");
+
+				return ExecNoneQuerySql(execSql);
+			}
+			else {
+				return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+			}
 		}
 
 
 		Rjson querySql(string sql, Rjson& params = Rjson(), vector<string> filelds = vector<string>())
 		{
-			throw std::logic_error("The method or operation is not implemented.");
+			return select(sql, params, filelds, 2);
 		}
 
 
 		Rjson execSql(string sql)
 		{
-			throw std::logic_error("The method or operation is not implemented.");
+			return ExecNoneQuerySql(sql);
 		}
 
 

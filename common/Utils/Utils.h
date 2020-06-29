@@ -70,7 +70,7 @@ public:
 		char tmp[64];
 		struct tm nowTime;
 		localtime_s(&nowTime, &timep);
-		strftime(tmp, sizeof(tmp), "%Y-%m-%d-%H:%M:%S", &nowTime);
+		strftime(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S", &nowTime);
 		return std::string(tmp);
 	}
 
