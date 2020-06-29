@@ -12,6 +12,10 @@ namespace Postgres {
 	class PostgresDb : public Idb
 	{
 	public:
+		PostgresDb(string connStr) {
+
+		}
+
 		Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>(), int queryType = 1) override
 		{
 			return Utils::MakeJsonObjectForFuncReturn(STSUCCESS);

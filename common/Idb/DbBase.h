@@ -2,8 +2,8 @@
 #include "Idb.h"
 #include "../Sqlit3/Sqlit3Db.h"
 #include "../Mysql/MysqlDb.h"
-
-
+#include "../Postgres/PostgresDb.h"
+#include <algorithm>
 
 class DbBase
 {
@@ -11,8 +11,12 @@ public:
 	DbBase(string dbhost, string dbuser, string dbpwd, string dbname, int port = 3306) {
 		db = new Mysql::MysqlDb(dbhost, dbuser, dbpwd, dbname, port);
 	}
-	DbBase(string connStr) : connStr(connStr) {
-		db = new Sqlit3::Sqlit3Db(connStr);
+	DbBase(string connStr, string dbType = "sqlit3") : connStr(connStr) {
+		transform(dbType.begin(), dbType.end(), dbType.begin(), ::tolower);
+		if (dbType.compare("sqlit3"))
+			db = new Sqlit3::Sqlit3Db(connStr);
+		else if (dbType.compare("postgres"))
+			db = new Postgres::PostgresDb(connStr);
 	};
 	~DbBase() {
 		if (db) {
