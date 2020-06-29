@@ -54,8 +54,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Sqlit3.lib;Mysql.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\codes\Jorm\thirds\MySQL-C-Api-6.1\lib;$(SolutionDir)$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Sqlit3.lib;libmysql.lib;pqxx.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\codes\Jorm\thirds\MySQL-C-Api-6.1\lib;D:\codes\Jorm\thirds\postgres\lib;$(SolutionDir)$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -91,6 +91,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Mysql\Mysql.vcxproj">
       <Project>{c9e6715d-3021-4d39-b07f-f54670d1f029}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Postgres\Postgres.vcxproj">
+      <Project>{799c2a98-84b5-4354-be46-e042ae9d2338}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Sqlit3\Sqlit3.vcxproj">
       <Project>{60529710-c08a-4213-a8b4-90d27e08c392}</Project>
