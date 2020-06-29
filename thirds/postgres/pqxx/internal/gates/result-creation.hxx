@@ -1,21 +1,29 @@
 #include <pqxx/internal/callgate.hxx>
 
-namespace pqxx::internal::gate
+namespace pqxx
 {
-class PQXX_PRIVATE result_creation : callgate<result const>
+namespace internal
 {
-  friend class pqxx::connection;
+namespace gate
+{
+class PQXX_PRIVATE result_creation : callgate<const result>
+{
+  friend class pqxx::connection_base;
   friend class pqxx::pipeline;
 
   result_creation(reference x) : super(x) {}
 
   static result create(
-    internal::pq::PGresult *rhs, std::shared_ptr<std::string> const &query,
-    encoding_group enc)
+	internal::pq::PGresult *rhs,
+	int protocol,
+	const PGSTD::string &query,
+	int encoding_code)
   {
-    return result(rhs, query, enc);
+    return result(rhs, protocol, query, encoding_code);
   }
 
-  void check_status() const { return home().check_status(); }
+  void CheckStatus() const { return home().CheckStatus(); }
 };
 } // namespace pqxx::internal::gate
+} // namespace pqxx::internal
+} // namespace pqxx

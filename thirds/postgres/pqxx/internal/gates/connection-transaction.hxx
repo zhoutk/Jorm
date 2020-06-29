@@ -2,43 +2,59 @@
 
 namespace pqxx
 {
-class connection;
-}
+class connection_base;
 
-namespace pqxx::internal::gate
+namespace internal
 {
-class PQXX_PRIVATE connection_transaction : callgate<connection>
+namespace gate
+{
+class PQXX_PRIVATE connection_transaction : callgate<connection_base>
 {
   friend class pqxx::transaction_base;
 
   connection_transaction(reference x) : super(x) {}
 
-  template<typename STRING> result exec(STRING query)
+  result Exec(const char query[], int retries)
+	{ return home().Exec(query, retries); }
+  void RegisterTransaction(transaction_base *t)
+	{ home().RegisterTransaction(t); }
+  void UnregisterTransaction(transaction_base *t) throw ()
+	{ home().UnregisterTransaction(t); }
+
+  bool ReadCopyLine(PGSTD::string &line)
+	{ return home().ReadCopyLine(line); }
+  void WriteCopyLine(const PGSTD::string &line)
+	{ home().WriteCopyLine(line); }
+  void EndCopyWrite() { home().EndCopyWrite(); }
+
+  PGSTD::string RawGetVar(const PGSTD::string &var)
+	{ return home().RawGetVar(var); }
+  void RawSetVar(const PGSTD::string &var, const PGSTD::string &value)
+	{ home().RawSetVar(var, value); }
+  void AddVariables(const PGSTD::map<PGSTD::string, PGSTD::string> &vars)
+	{ home().AddVariables(vars); }
+
+  result prepared_exec(
+	const PGSTD::string &statement,
+	const char *const params[],
+	const int paramlengths[],
+	const int binaries[],
+	int nparams)
   {
-    return home().exec(query);
+    return home().prepared_exec(
+	statement,
+	params,
+	paramlengths,
+	binaries,
+	nparams);
   }
 
-  void register_transaction(transaction_base *t)
-  {
-    home().register_transaction(t);
-  }
-  void unregister_transaction(transaction_base *t) noexcept
-  {
-    home().unregister_transaction(t);
-  }
+  bool prepared_exists(const PGSTD::string &statement) const
+	{ return home().prepared_exists(statement); }
 
-  auto read_copy_line() { return home().read_copy_line(); }
-  void write_copy_line(std::string_view line) { home().write_copy_line(line); }
-  void end_copy_write() { home().end_copy_write(); }
-
-  result exec_prepared(zview statement, internal::params const &args)
-  {
-    return home().exec_prepared(statement, args);
-  }
-
-  result exec_params(std::string const &query, internal::params const &args)
-  {
-    return home().exec_params(query, args);
-  }
+  void take_reactivation_avoidance(int counter)
+	{ home().m_reactivation_avoidance.add(counter); }
 };
 } // namespace pqxx::internal::gate
+} // namespace pqxx::internal
+} // namespace pqxx

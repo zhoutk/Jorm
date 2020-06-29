@@ -1,19 +1,25 @@
 #include <pqxx/internal/callgate.hxx>
 
-namespace pqxx::internal
+namespace pqxx
+{
+namespace internal
 {
 class sql_cursor;
-}
 
-
-namespace pqxx::internal::gate
+namespace gate
 {
-class PQXX_PRIVATE connection_sql_cursor : callgate<connection>
+class PQXX_PRIVATE connection_sql_cursor : callgate<connection_base>
 {
   friend class pqxx::internal::sql_cursor;
 
   connection_sql_cursor(reference x) : super(x) {}
 
-  result exec(char const query[]) { return home().exec(query); }
+  result Exec(const char query[], int retries)
+	{ return home().Exec(query, retries); }
+
+  void add_reactivation_avoidance_count(int n)
+	{ home().add_reactivation_avoidance_count(n); }
 };
 } // namespace pqxx::internal::gate
+} // namespace pqxx::internal
+} // namespace pqxx

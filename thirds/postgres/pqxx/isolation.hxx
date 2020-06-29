@@ -1,33 +1,31 @@
-/* Definitions for transaction isolation levels, and such.
+/*-------------------------------------------------------------------------
  *
- * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/isolation instead.
+ *   FILE
+ *	pqxx/isolation.hxx
  *
- * Copyright (c) 2000-2020, Jeroen T. Vermeulen.
+ *   DESCRIPTION
+ *      definitions of transaction isolation levels
+ *   Policies and traits describing SQL transaction isolation levels
+ *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/isolation instead.
+ *
+ * Copyright (c) 2003-2013, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this
- * mistake, or contact the author.
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
+ *
+ *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_ISOLATION
 #define PQXX_H_ISOLATION
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
-#include "pqxx/util.hxx"
+#include "pqxx/util"
 
 namespace pqxx
 {
-/// Should a transaction be read-only, or read-write?
-/** No, this is not an isolation level.  So it really doesn't belong here.
- * But it's not really worth a separate header.
- */
-enum class write_policy
-{
-  read_only,
-  read_write
-};
-
 
 /// Transaction isolation levels.
 /** These are as defined in the SQL standard.  But there are a few notes
@@ -46,9 +44,9 @@ enum class write_policy
  *
  * Third, "serializable" is only properly supported starting at postgres 9.1.
  * If you request "serializable" isolation on an older backend, you will get
- * the same isolation as in "repeatable read."  It's better than the
- * "repeatable read" defined in the SQL standard, but not a complete
- * implementation of the standard's "serializable" isolation level.
+ * the same isolation as in "repeatable read."  It's better than the "repeatable
+ * read" defined in the SQL standard, but not a complete implementation of the
+ * standard's "serializable" isolation level.
  *
  * In general, a lower isolation level will allow more surprising interactions
  * between ongoing transactions, but improve performance.  A higher level
@@ -56,21 +54,36 @@ enum class write_policy
  * may not be possible to complete your transaction without avoiding paradoxes
  * in the data.  In that case a transaction may fail, and the application will
  * have to re-do the whole thing based on the latest state of the database.
- * (If you want to retry your code in that situation, have a look at the
- * transactor framework.)
  *
  * Study the levels and design your application with the right level in mind.
  */
 enum isolation_level
 {
-  // PostgreSQL only has the better isolation levels.
   // read_uncommitted,
-
   read_committed,
   repeatable_read,
-  serializable,
+  serializable
 };
-} // namespace pqxx
 
-#include "pqxx/internal/compiler-internal-post.hxx"
+/// Traits class to describe an isolation level; primarly for libpqxx's own use
+template<isolation_level LEVEL> struct isolation_traits
+{
+  static isolation_level level() throw () { return LEVEL; }
+  static const char *name() throw ();
+};
+
+
+template<> inline const char *isolation_traits<read_committed>::name() throw ()
+	{ return "READ COMMITTED"; }
+template<> inline const char *isolation_traits<repeatable_read>::name() throw ()
+	{ return "REPEATABLE READ"; }
+template<> inline const char *isolation_traits<serializable>::name() throw ()
+	{ return "SERIALIZABLE"; }
+
+}
+
+
+#include "pqxx/compiler-internal-post.hxx"
+
 #endif
+

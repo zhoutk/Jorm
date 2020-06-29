@@ -1,13 +1,19 @@
 #include <pqxx/internal/callgate.hxx>
 
-namespace pqxx::internal::gate
+namespace pqxx
 {
-class PQXX_PRIVATE result_sql_cursor : callgate<result const>
+namespace internal
+{
+namespace gate
+{
+class PQXX_PRIVATE result_sql_cursor : callgate<const result>
 {
   friend class pqxx::internal::sql_cursor;
 
   result_sql_cursor(reference x) : super(x) {}
 
-  char const *cmd_status() const noexcept { return home().cmd_status(); }
+  const char *CmdStatus() const throw () { return home().CmdStatus(); }
 };
 } // namespace pqxx::internal::gate
+} // namespace pqxx::internal
+} // namespace pqxx

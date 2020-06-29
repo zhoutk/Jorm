@@ -1,56 +1,111 @@
-/* Definition of libpqxx exception classes.
+/*-------------------------------------------------------------------------
  *
- * pqxx::sql_error, pqxx::broken_connection, pqxx::in_doubt_error, ...
+ *   FILE
+ *	pqxx/except.hxx
  *
- * DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/except instead.
+ *   DESCRIPTION
+ *      definition of libpqxx exception classes
+ *   pqxx::sql_error, pqxx::broken_connection, pqxx::in_doubt_error, ...
+ *   DO NOT INCLUDE THIS FILE DIRECTLY; include pqxx/except instead.
  *
- * Copyright (c) 2000-2020, Jeroen T. Vermeulen.
+ * Copyright (c) 2003-2008, Jeroen T. Vermeulen <jtv@xs4all.nl>
  *
  * See COPYING for copyright license.  If you did not receive a file called
- * COPYING with this source code, please notify the distributor of this
- * mistake, or contact the author.
+ * COPYING with this source code, please notify the distributor of this mistake,
+ * or contact the author.
+ *
+ *-------------------------------------------------------------------------
  */
 #ifndef PQXX_H_EXCEPT
 #define PQXX_H_EXCEPT
 
 #include "pqxx/compiler-public.hxx"
-#include "pqxx/internal/compiler-internal-pre.hxx"
+#include "pqxx/compiler-internal-pre.hxx"
 
 #include <stdexcept>
-#include <string>
+
+#include "pqxx/util"
 
 
-// TODO: Move vtable to except.cxx, by implementing destructors there.
 namespace pqxx
 {
+
 /**
  * @addtogroup exception Exception classes
  *
  * These exception classes follow, roughly, the two-level hierarchy defined by
  * the PostgreSQL error codes (see Appendix A of the PostgreSQL documentation
- * corresponding to your server version).  This is not a complete mapping
- * though.  There are other differences as well, e.g. the error code
- * @c statement_completion_unknown has a separate status in libpqxx as
- * @c in_doubt_error, and @c too_many_connections is classified as a
- * @c broken_connection rather than a subtype of @c insufficient_resources.
+ * corresponding to your server version).  The hierarchy given here is, as yet,
+ * not a complete mirror of the error codes.  There are some other differences
+ * as well, e.g. the error code statement_completion_unknown has a separate
+ * status in libpqxx as in_doubt_error, and too_many_connections is classified
+ * as a broken_connection rather than a subtype of insufficient_resources.
  *
- * @see http://www.postgresql.org/docs/9.4/interactive/errcodes-appendix.html
+ * @see http://www.postgresql.org/docs/8.1/interactive/errcodes-appendix.html
  *
  * @{
  */
 
-/// Run-time failure encountered by libpqxx, similar to std::runtime_error.
-struct PQXX_LIBEXPORT failure : std::runtime_error
+/// Mixin base class to identify libpqxx-specific exception types
+/**
+ * If you wish to catch all exception types specific to libpqxx for some reason,
+ * catch this type.  All of libpqxx's exception classes are derived from it
+ * through multiple-inheritance (they also fit into the standard library's
+ * exception hierarchy in more fitting places).
+ *
+ * This class is not derived from std::exception, since that could easily lead
+ * to exception classes with multiple std::exception base-class objects.  As
+ * Bart Samwel points out, "catch" is subject to some nasty fineprint in such
+ * cases.
+ */
+class PQXX_LIBEXPORT PQXX_NOVTABLE pqxx_exception
 {
-  explicit failure(std::string const &);
+public:
+  /// Support run-time polymorphism, and keep this class abstract
+  virtual ~pqxx_exception() throw () =0;
+
+  /// Return std::exception base-class object
+  /** Use this to get at the exception's what() function, or to downcast to a
+   * more specific type using dynamic_cast.
+   *
+   * Casting directly from pqxx_exception to a specific exception type is not
+   * likely to work since pqxx_exception is not (and could not safely be)
+   * derived from std::exception.
+   *
+   * For example, to test dynamically whether an exception is an sql_error:
+   *
+   * @code
+   * try
+   * {
+   *   // ...
+   * }
+   * catch (const pqxx::pqxx_exception &e)
+   * {
+   *   std::cerr << e.base().what() << std::endl;
+   *   const pqxx::sql_error *s=dynamic_cast<const pqxx::sql_error*>(&e.base());
+   *   if (s) std::cerr << "Query was: " << s->query() << std::endl;
+   * }
+   * @endcode
+   */
+  virtual const PQXX_CONST PGSTD::exception &base() const throw () =0;	//[t0]
+};
+
+
+/// Run-time failure encountered by libpqxx, similar to std::runtime_error
+class PQXX_LIBEXPORT failure :
+  public pqxx_exception, public PGSTD::runtime_error
+{
+  virtual const PGSTD::exception &base() const throw () { return *this; }
+public:
+  explicit failure(const PGSTD::string &);
 };
 
 
 /// Exception class for lost or failed backend connection.
 /**
  * @warning When this happens on Unix-like systems, you may also get a SIGPIPE
- * signal.  That signal aborts the program by default, so if you wish to be
- * able to continue after a connection breaks, be sure to disarm this signal.
+ * signal.  That signal aborts the program by default, so if you wish to be able
+ * to continue after a connection breaks, be sure to disarm this signal.
  *
  * If you're working on a Unix-like system, see the manual page for
  * @c signal (2) on how to deal with SIGPIPE.  The easiest way to make this
@@ -65,38 +120,32 @@ struct PQXX_LIBEXPORT failure : std::runtime_error
  *   // ...
  * @endcode
  */
-struct PQXX_LIBEXPORT broken_connection : failure
+class PQXX_LIBEXPORT broken_connection : public failure
 {
+public:
   broken_connection();
-  explicit broken_connection(std::string const &);
+  explicit broken_connection(const PGSTD::string &);
 };
 
 
 /// Exception class for failed queries.
-/** Carries, in addition to a regular error message, a copy of the failed query
- * and (if available) the SQLSTATE value accompanying the error.
- */
+/** Carries a copy of the failed query in addition to a regular error message */
 class PQXX_LIBEXPORT sql_error : public failure
 {
-  /// Query string.  Empty if unknown.
-  std::string const m_query;
-  /// SQLSTATE string describing the error type, if known; or empty string.
-  std::string const m_sqlstate;
+  PGSTD::string m_Q;
 
 public:
-  explicit sql_error(
-    std::string const &whatarg = "", std::string const &Q = "",
-    char const sqlstate[] = nullptr);
-  virtual ~sql_error() noexcept override;
+  sql_error();
+  explicit sql_error(const PGSTD::string &);
+  sql_error(const PGSTD::string &, const PGSTD::string &Q);
+  virtual ~sql_error() throw ();
 
   /// The query whose execution triggered the exception
-  [[nodiscard]] PQXX_PURE std::string const &query() const noexcept;
-
-  /// SQLSTATE error code if known, or empty string otherwise.
-  [[nodiscard]] PQXX_PURE std::string const &sqlstate() const noexcept;
+  const PGSTD::string & PQXX_PURE query() const throw ();		//[t56]
 };
 
 
+// TODO: should this be called statement_completion_unknown!?
 /// "Help, I don't know whether transaction was committed successfully!"
 /** Exception that might be thrown in rare cases where the connection to the
  * database is lost while finishing a database transaction, and there's no way
@@ -104,333 +153,294 @@ public:
  * the database is left in an indeterminate (but consistent) state, and only
  * manual inspection will tell which is the case.
  */
-struct PQXX_LIBEXPORT in_doubt_error : failure
+class PQXX_LIBEXPORT in_doubt_error : public failure
 {
-  explicit in_doubt_error(std::string const &);
-};
-
-
-/// The backend saw itself forced to roll back the ongoing transaction.
-struct PQXX_LIBEXPORT transaction_rollback : sql_error
-{
-  explicit transaction_rollback(
-    std::string const &whatarg, std::string const &q = "",
-    char const sqlstate[] = nullptr);
-};
-
-
-/// Transaction failed to serialize.  Please retry it.
-/** Can only happen at transaction isolation levels REPEATABLE READ and
- * SERIALIZABLE.
- *
- * The current transaction cannot be committed without violating the guarantees
- * made by its isolation level.  This is the effect of a conflict with another
- * ongoing transaction.  The transaction may still succeed if you try to
- * perform it again.
- */
-struct PQXX_LIBEXPORT serialization_failure : transaction_rollback
-{
-  explicit serialization_failure(
-    std::string const &whatarg, std::string const &q,
-    char const sqlstate[] = nullptr);
-};
-
-
-/// We can't tell whether our last statement succeeded.
-struct PQXX_LIBEXPORT statement_completion_unknown : transaction_rollback
-{
-  explicit statement_completion_unknown(
-    std::string const &whatarg, std::string const &q,
-    char const sqlstate[] = nullptr);
-};
-
-
-/// The ongoing transaction has deadlocked.  Retrying it may help.
-struct PQXX_LIBEXPORT deadlock_detected : transaction_rollback
-{
-  explicit deadlock_detected(
-    std::string const &whatarg, std::string const &q,
-    char const sqlstate[] = nullptr);
+public:
+  explicit in_doubt_error(const PGSTD::string &);
 };
 
 
 /// Internal error in libpqxx library
-struct PQXX_LIBEXPORT internal_error : std::logic_error
+class PQXX_LIBEXPORT internal_error :
+  public pqxx_exception, public PGSTD::logic_error
 {
-  explicit internal_error(std::string const &);
+  virtual const PGSTD::exception &base() const throw () { return *this; }
+public:
+  explicit internal_error(const PGSTD::string &);
 };
 
 
 /// Error in usage of libpqxx library, similar to std::logic_error
-struct PQXX_LIBEXPORT usage_error : std::logic_error
+class PQXX_LIBEXPORT usage_error :
+  public pqxx_exception, public PGSTD::logic_error
 {
-  explicit usage_error(std::string const &);
+  virtual const PGSTD::exception &base() const throw () { return *this; }
+public:
+  explicit usage_error(const PGSTD::string &);
 };
 
 
 /// Invalid argument passed to libpqxx, similar to std::invalid_argument
-struct PQXX_LIBEXPORT argument_error : std::invalid_argument
+class PQXX_LIBEXPORT argument_error :
+  public pqxx_exception, public PGSTD::invalid_argument
 {
-  explicit argument_error(std::string const &);
+  virtual const PGSTD::exception &base() const throw () { return *this; }
+public:
+  explicit argument_error(const PGSTD::string &);
 };
 
 
-/// Value conversion failed, e.g. when converting "Hello" to int.
-struct PQXX_LIBEXPORT conversion_error : std::domain_error
+class PQXX_LIBEXPORT conversion_error :
+  public pqxx_exception, public PGSTD::domain_error
 {
-  explicit conversion_error(std::string const &);
-};
-
-
-/// Could not convert value to string: not enough buffer space.
-struct PQXX_LIBEXPORT conversion_overrun : conversion_error
-{
-  explicit conversion_overrun(std::string const &);
+  virtual const PGSTD::exception &base() const throw () { return *this; }
+public:
+  explicit conversion_error(const PGSTD::string &);
 };
 
 
 /// Something is out of range, similar to std::out_of_range
-struct PQXX_LIBEXPORT range_error : std::out_of_range
+class PQXX_LIBEXPORT range_error :
+  public pqxx_exception, public PGSTD::out_of_range
 {
-  explicit range_error(std::string const &);
+  virtual const PGSTD::exception &base() const throw () { return *this; }
+public:
+  explicit range_error(const PGSTD::string &);
 };
 
 
-/// Query returned an unexpected number of rows.
-struct PQXX_LIBEXPORT unexpected_rows : public range_error
+/// Database feature not supported in current setup
+class PQXX_LIBEXPORT feature_not_supported : public sql_error
 {
-  explicit unexpected_rows(std::string const &msg) : range_error{msg} {}
+public:
+  explicit feature_not_supported(const PGSTD::string &err) : sql_error(err) {}
+  feature_not_supported(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
 };
 
-
-/// Database feature not supported in current setup.
-struct PQXX_LIBEXPORT feature_not_supported : sql_error
+/// Error in data provided to SQL statement
+class PQXX_LIBEXPORT data_exception : public sql_error
 {
-  explicit feature_not_supported(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          sql_error{err, Q, sqlstate}
-  {}
+public:
+  explicit data_exception(const PGSTD::string &err) : sql_error(err) {}
+  data_exception(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
 };
 
-/// Error in data provided to SQL statement.
-struct PQXX_LIBEXPORT data_exception : sql_error
+class PQXX_LIBEXPORT integrity_constraint_violation : public sql_error
 {
-  explicit data_exception(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          sql_error{err, Q, sqlstate}
-  {}
+public:
+  explicit integrity_constraint_violation(const PGSTD::string &err) :
+	sql_error(err) {}
+  integrity_constraint_violation(const PGSTD::string &err,
+	const PGSTD::string &Q) :
+	sql_error(err, Q) {}
 };
 
-struct PQXX_LIBEXPORT integrity_constraint_violation : sql_error
+class PQXX_LIBEXPORT restrict_violation :
+  public integrity_constraint_violation
 {
-  explicit integrity_constraint_violation(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          sql_error{err, Q, sqlstate}
-  {}
+public:
+  explicit restrict_violation(const PGSTD::string &err) :
+	integrity_constraint_violation(err) {}
+  restrict_violation(const PGSTD::string &err,
+	const PGSTD::string &Q) :
+	integrity_constraint_violation(err, Q) {}
 };
 
-struct PQXX_LIBEXPORT restrict_violation : integrity_constraint_violation
+class PQXX_LIBEXPORT not_null_violation :
+  public integrity_constraint_violation
 {
-  explicit restrict_violation(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          integrity_constraint_violation{err, Q, sqlstate}
-  {}
+public:
+  explicit not_null_violation(const PGSTD::string &err) :
+	integrity_constraint_violation(err) {}
+  not_null_violation(const PGSTD::string &err,
+	const PGSTD::string &Q) :
+	integrity_constraint_violation(err, Q) {}
 };
 
-struct PQXX_LIBEXPORT not_null_violation : integrity_constraint_violation
+class PQXX_LIBEXPORT foreign_key_violation :
+  public integrity_constraint_violation
 {
-  explicit not_null_violation(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          integrity_constraint_violation{err, Q, sqlstate}
-  {}
+public:
+  explicit foreign_key_violation(const PGSTD::string &err) :
+	integrity_constraint_violation(err) {}
+  foreign_key_violation(const PGSTD::string &err,
+	const PGSTD::string &Q) :
+	integrity_constraint_violation(err, Q) {}
 };
 
-struct PQXX_LIBEXPORT foreign_key_violation : integrity_constraint_violation
+class PQXX_LIBEXPORT unique_violation :
+  public integrity_constraint_violation
 {
-  explicit foreign_key_violation(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          integrity_constraint_violation{err, Q, sqlstate}
-  {}
+public:
+  explicit unique_violation(const PGSTD::string &err) :
+	integrity_constraint_violation(err) {}
+  unique_violation(const PGSTD::string &err,
+	const PGSTD::string &Q) :
+	integrity_constraint_violation(err, Q) {}
 };
 
-struct PQXX_LIBEXPORT unique_violation : integrity_constraint_violation
+class PQXX_LIBEXPORT check_violation :
+  public integrity_constraint_violation
 {
-  explicit unique_violation(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          integrity_constraint_violation{err, Q, sqlstate}
-  {}
+public:
+  explicit check_violation(const PGSTD::string &err) :
+	integrity_constraint_violation(err) {}
+  check_violation(const PGSTD::string &err,
+	const PGSTD::string &Q) :
+	integrity_constraint_violation(err, Q) {}
 };
 
-struct PQXX_LIBEXPORT check_violation : integrity_constraint_violation
+class PQXX_LIBEXPORT invalid_cursor_state : public sql_error
 {
-  explicit check_violation(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          integrity_constraint_violation{err, Q, sqlstate}
-  {}
+public:
+  explicit invalid_cursor_state(const PGSTD::string &err) : sql_error(err) {}
+  invalid_cursor_state(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
 };
 
-struct PQXX_LIBEXPORT invalid_cursor_state : sql_error
+class PQXX_LIBEXPORT invalid_sql_statement_name : public sql_error
 {
-  explicit invalid_cursor_state(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          sql_error{err, Q, sqlstate}
-  {}
+public:
+  explicit invalid_sql_statement_name(const PGSTD::string &err) :
+	sql_error(err) {}
+  invalid_sql_statement_name(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
 };
 
-struct PQXX_LIBEXPORT invalid_sql_statement_name : sql_error
+class PQXX_LIBEXPORT invalid_cursor_name : public sql_error
 {
-  explicit invalid_sql_statement_name(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          sql_error{err, Q, sqlstate}
-  {}
+public:
+  explicit invalid_cursor_name(const PGSTD::string &err) : sql_error(err) {}
+  invalid_cursor_name(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
 };
 
-struct PQXX_LIBEXPORT invalid_cursor_name : sql_error
+class PQXX_LIBEXPORT syntax_error : public sql_error
 {
-  explicit invalid_cursor_name(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          sql_error{err, Q, sqlstate}
-  {}
-};
-
-struct PQXX_LIBEXPORT syntax_error : sql_error
-{
+public:
   /// Approximate position in string where error occurred, or -1 if unknown.
-  int const error_position;
+  const int error_position;
 
-  explicit syntax_error(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr, int pos = -1) :
-          sql_error{err, Q, sqlstate}, error_position{pos}
-  {}
+  explicit syntax_error(const PGSTD::string &err, int pos=-1) :
+    sql_error(err), error_position(pos) {}
+  syntax_error(const PGSTD::string &err, const PGSTD::string &Q, int pos=-1) :
+	sql_error(err,Q), error_position(pos) {}
 };
 
-struct PQXX_LIBEXPORT undefined_column : syntax_error
+class PQXX_LIBEXPORT undefined_column : public syntax_error
 {
-  explicit undefined_column(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          syntax_error{err, Q, sqlstate}
-  {}
+public:
+  explicit undefined_column(const PGSTD::string &err) : syntax_error(err) {}
+  undefined_column(const PGSTD::string &err, const PGSTD::string &Q) :
+    syntax_error(err, Q) {}
 };
 
-struct PQXX_LIBEXPORT undefined_function : syntax_error
+class PQXX_LIBEXPORT undefined_function : public syntax_error
 {
-  explicit undefined_function(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          syntax_error{err, Q, sqlstate}
-  {}
+public:
+  explicit undefined_function(const PGSTD::string &err) : syntax_error(err) {}
+  undefined_function(const PGSTD::string &err, const PGSTD::string &Q) :
+    syntax_error(err, Q) {}
 };
 
-struct PQXX_LIBEXPORT undefined_table : syntax_error
+class PQXX_LIBEXPORT undefined_table : public syntax_error
 {
-  explicit undefined_table(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          syntax_error{err, Q, sqlstate}
-  {}
+public:
+  explicit undefined_table(const PGSTD::string &err) : syntax_error(err) {}
+  undefined_table(const PGSTD::string &err, const PGSTD::string &Q) :
+    syntax_error(err, Q) {}
 };
 
-struct PQXX_LIBEXPORT insufficient_privilege : sql_error
+class PQXX_LIBEXPORT insufficient_privilege : public sql_error
 {
-  explicit insufficient_privilege(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          sql_error{err, Q, sqlstate}
-  {}
+public:
+  explicit insufficient_privilege(const PGSTD::string &err) : sql_error(err) {}
+  insufficient_privilege(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
 };
 
 /// Resource shortage on the server
-struct PQXX_LIBEXPORT insufficient_resources : sql_error
+class PQXX_LIBEXPORT insufficient_resources : public sql_error
 {
-  explicit insufficient_resources(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          sql_error{err, Q, sqlstate}
-  {}
+public:
+  explicit insufficient_resources(const PGSTD::string &err) : sql_error(err) {}
+  insufficient_resources(const PGSTD::string &err, const PGSTD::string &Q) :
+	sql_error(err,Q) {}
 };
 
-struct PQXX_LIBEXPORT disk_full : insufficient_resources
+class PQXX_LIBEXPORT disk_full : public insufficient_resources
 {
-  explicit disk_full(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          insufficient_resources{err, Q, sqlstate}
-  {}
+public:
+  explicit disk_full(const PGSTD::string &err) : insufficient_resources(err) {}
+  disk_full(const PGSTD::string &err, const PGSTD::string &Q) :
+	insufficient_resources(err,Q) {}
 };
 
-struct PQXX_LIBEXPORT out_of_memory : insufficient_resources
+class PQXX_LIBEXPORT out_of_memory : public insufficient_resources
 {
-  explicit out_of_memory(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          insufficient_resources{err, Q, sqlstate}
-  {}
+public:
+  explicit out_of_memory(const PGSTD::string &err) :
+	insufficient_resources(err) {}
+  out_of_memory(const PGSTD::string &err, const PGSTD::string &Q) :
+	insufficient_resources(err,Q) {}
 };
 
-struct PQXX_LIBEXPORT too_many_connections : broken_connection
+class PQXX_LIBEXPORT too_many_connections : public broken_connection
 {
-  explicit too_many_connections(std::string const &err) :
-          broken_connection{err}
-  {}
+public:
+  explicit too_many_connections(const PGSTD::string &err) :
+	broken_connection(err) {}
 };
 
 /// PL/pgSQL error
 /** Exceptions derived from this class are errors from PL/pgSQL procedures.
  */
-struct PQXX_LIBEXPORT plpgsql_error : sql_error
+class PQXX_LIBEXPORT plpgsql_error : public sql_error
 {
-  explicit plpgsql_error(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          sql_error{err, Q, sqlstate}
-  {}
+public:
+  explicit plpgsql_error(const PGSTD::string &err) :
+    sql_error(err) {}
+  plpgsql_error(const PGSTD::string &err, const PGSTD::string &Q) :
+    sql_error(err, Q) {}
 };
 
 /// Exception raised in PL/pgSQL procedure
-struct PQXX_LIBEXPORT plpgsql_raise : plpgsql_error
+class PQXX_LIBEXPORT plpgsql_raise : public plpgsql_error
 {
-  explicit plpgsql_raise(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          plpgsql_error{err, Q, sqlstate}
-  {}
+public:
+  explicit plpgsql_raise(const PGSTD::string &err) :
+    plpgsql_error(err) {}
+  plpgsql_raise(const PGSTD::string &err, const PGSTD::string &Q) :
+    plpgsql_error(err, Q) {}
 };
 
-struct PQXX_LIBEXPORT plpgsql_no_data_found : plpgsql_error
+class PQXX_LIBEXPORT plpgsql_no_data_found : public plpgsql_error
 {
-  explicit plpgsql_no_data_found(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          plpgsql_error{err, Q, sqlstate}
-  {}
+public:
+  explicit plpgsql_no_data_found(const PGSTD::string &err) :
+    plpgsql_error(err) {}
+  plpgsql_no_data_found(const PGSTD::string &err, const PGSTD::string &Q) :
+    plpgsql_error(err, Q) {}
 };
 
-struct PQXX_LIBEXPORT plpgsql_too_many_rows : plpgsql_error
+class PQXX_LIBEXPORT plpgsql_too_many_rows : public plpgsql_error
 {
-  explicit plpgsql_too_many_rows(
-    std::string const &err, std::string const &Q = "",
-    char const sqlstate[] = nullptr) :
-          plpgsql_error{err, Q, sqlstate}
-  {}
+public:
+  explicit plpgsql_too_many_rows(const PGSTD::string &err) :
+    plpgsql_error(err) {}
+  plpgsql_too_many_rows(const PGSTD::string &err, const PGSTD::string &Q) :
+    plpgsql_error(err, Q) {}
 };
 
 /**
  * @}
  */
-} // namespace pqxx
 
-#include "pqxx/internal/compiler-internal-post.hxx"
+}
+
+#include "pqxx/compiler-internal-post.hxx"
+
 #endif
+

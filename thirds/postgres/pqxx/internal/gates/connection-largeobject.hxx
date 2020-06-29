@@ -1,32 +1,22 @@
-#include <string>
-
 #include <pqxx/internal/callgate.hxx>
 #include <pqxx/internal/libpq-forward.hxx>
 
 namespace pqxx
 {
 class largeobject;
-}
 
-
-namespace pqxx::internal::gate
+namespace internal
 {
-class PQXX_PRIVATE connection_largeobject : callgate<connection>
+namespace gate
+{
+class PQXX_PRIVATE connection_largeobject : callgate<connection_base>
 {
   friend class pqxx::largeobject;
 
   connection_largeobject(reference x) : super(x) {}
 
-  pq::PGconn *raw_connection() const { return home().raw_connection(); }
-};
-
-
-class PQXX_PRIVATE const_connection_largeobject : callgate<connection const>
-{
-  friend class pqxx::largeobject;
-
-  const_connection_largeobject(reference x) : super(x) {}
-
-  std::string error_message() const { return home().err_msg(); }
+  pq::PGconn *RawConnection() const { return home().RawConnection(); }
 };
 } // namespace pqxx::internal::gate
+} // namespace pqxx::internal
+} // namespace pqxx

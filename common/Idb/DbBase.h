@@ -13,9 +13,9 @@ public:
 	}
 	DbBase(string connStr, string dbType = "sqlit3") : connStr(connStr) {
 		transform(dbType.begin(), dbType.end(), dbType.begin(), ::tolower);
-		if (dbType.compare("sqlit3"))
+		if (dbType.compare("sqlit3") == 0)
 			db = new Sqlit3::Sqlit3Db(connStr);
-		else if (dbType.compare("postgres"))
+		else if (dbType.compare("postgres") == 0)
 			db = new Postgres::PostgresDb(connStr);
 	};
 	~DbBase() {

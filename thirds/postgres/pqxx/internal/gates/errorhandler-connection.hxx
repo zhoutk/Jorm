@@ -1,13 +1,19 @@
 #include <pqxx/internal/callgate.hxx>
 
-namespace pqxx::internal::gate
+namespace pqxx
 {
-class PQXX_PRIVATE errorhandler_connection : callgate<errorhandler>
+namespace internal
 {
-  friend class pqxx::connection;
+namespace gate
+{
+class PQXX_PRIVATE errorhandler_connection_base : callgate<errorhandler>
+{
+  friend class pqxx::connection_base;
 
-  errorhandler_connection(reference x) : super(x) {}
+  errorhandler_connection_base(reference x) : super(x) {}
 
-  void unregister() noexcept { home().unregister(); }
+  void unregister() throw () { home().unregister(); }
 };
 } // namespace pqxx::internal::gate
+} // namespace pqxx::internal
+} // namespace pqxx
