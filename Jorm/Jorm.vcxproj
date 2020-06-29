@@ -106,7 +106,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Sqlit3.lib;libmysql.lib;libpq.lib;libpqxx.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Sqlit3.lib;libmysql.lib;libpq.lib;libpqxxD.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\codes\Jorm\thirds\MySQL-C-Api-6.1\lib;D:\codes\Jorm\thirds\postgres\lib;$(SolutionDir)$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

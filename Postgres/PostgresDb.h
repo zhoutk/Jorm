@@ -42,8 +42,7 @@ namespace Postgres {
 
 	public:
 
-		PostgresDb(string connStr) {
-
+		PostgresDb(string connStr):connStr(connStr) {
 		}
 
 		Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>(), int queryType = 1) 
@@ -259,10 +258,8 @@ namespace Postgres {
 
 			for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
 				cout << "ID = " << c[0].as<int>() << endl;
-				cout << "Name = " << c[1].as<string>() << endl;
+				cout << "Name = " << Utils::U8ToUnicode((char*)(c[1].as<string>()).c_str()) << endl;
 				cout << "Age = " << c[2].as<int>() << endl;
-				cout << "Address = " << c[3].as<string>() << endl;
-				cout << "Salary = " << c[4].as<float>() << endl;
 			}
 
 			return rs;
