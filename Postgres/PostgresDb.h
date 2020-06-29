@@ -52,6 +52,74 @@ namespace Postgres {
 		PostgresDb(string connStr) :connStr(connStr) {
 		}
 
+		Rjson create(string tablename, Rjson& params)
+		{
+			if (params.IsObject()) {
+				string execSql = "insert into ";
+				execSql.append(tablename).append(" ");
+
+				vector<string> allKeys = params.GetAllKeys();
+				size_t len = allKeys.size();
+				string fields = "", vs = "";
+				for (size_t i = 0; i < len; i++) {
+					string key = allKeys[i];
+					fields.append(key);
+					string v;
+					int vType;
+					params.GetValueAndTypeByKey(key, &v, &vType);
+					if (vType == 6)
+						vs.append(v);
+					else
+						vs.append("'").append(v).append("'");
+					if (i < len - 1) {
+						fields.append(",");
+						vs.append(",");
+					}
+				}
+				execSql.append("(").append(fields).append(") values (").append(vs).append(")");
+				return ExecNoneQuerySql(execSql);
+			}
+			else {
+				return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+			}
+		}
+
+
+		Rjson update(string tablename, Rjson& params)
+		{
+			throw std::logic_error("The method or operation is not implemented.");
+		}
+
+
+		Rjson remove(string tablename, Rjson& params)
+		{
+			throw std::logic_error("The method or operation is not implemented.");
+		}
+
+
+		Rjson querySql(string sql, Rjson& params = Rjson(), vector<string> filelds = vector<string>())
+		{
+			throw std::logic_error("The method or operation is not implemented.");
+		}
+
+
+		Rjson execSql(string sql)
+		{
+			throw std::logic_error("The method or operation is not implemented.");
+		}
+
+
+		Rjson insertBatch(string tablename, vector<Rjson> elements)
+		{
+			throw std::logic_error("The method or operation is not implemented.");
+		}
+
+
+		Rjson transGo(vector<string> sqls, bool isAsync = false)
+		{
+			throw std::logic_error("The method or operation is not implemented.");
+		}
+
 		Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>(), int queryType = 1)
 		{
 			if (params.IsObject()) {
@@ -209,46 +277,7 @@ namespace Postgres {
 		}
 
 
-		Rjson create(string tablename, Rjson& params)
-		{
-			throw std::logic_error("The method or operation is not implemented.");
-		}
-
-
-		Rjson update(string tablename, Rjson& params)
-		{
-			throw std::logic_error("The method or operation is not implemented.");
-		}
-
-
-		Rjson remove(string tablename, Rjson& params)
-		{
-			throw std::logic_error("The method or operation is not implemented.");
-		}
-
-
-		Rjson querySql(string sql, Rjson& params = Rjson(), vector<string> filelds = vector<string>())
-		{
-			throw std::logic_error("The method or operation is not implemented.");
-		}
-
-
-		Rjson execSql(string sql)
-		{
-			throw std::logic_error("The method or operation is not implemented.");
-		}
-
-
-		Rjson insertBatch(string tablename, vector<Rjson> elements)
-		{
-			throw std::logic_error("The method or operation is not implemented.");
-		}
-
-
-		Rjson transGo(vector<string> sqls, bool isAsync = false)
-		{
-			throw std::logic_error("The method or operation is not implemented.");
-		}
+		
 
 
 		~PostgresDb()
@@ -293,6 +322,27 @@ namespace Postgres {
 			catch (const std::exception& e) {
 				return Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR, Utils::U8ToUnicode((char*)e.what()));
 			}
+		}
+
+		Rjson ExecNoneQuerySql(string aQuery) {
+			Rjson rs = Utils::MakeJsonObjectForFuncReturn(STSUCCESS);
+			string u8Query = Utils::UnicodeToU8(aQuery);
+			string err;
+			connection* pq = GetConnection(&err);
+			if (pq == nullptr)
+				return Utils::MakeJsonObjectForFuncReturn(STDBCONNECTERR, Utils::U8ToUnicode((char*)err.c_str()));
+			try {
+				nontransaction N(*pq);
+				result R(N.exec(u8Query));
+
+				rs.AddValueInt("affected", R.affected_rows());
+				rs.AddValueInt("newId", R.inserted_oid());
+			}
+			catch (const std::exception& e) {
+				return Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR, Utils::U8ToUnicode((char*)e.what()));
+			}
+			cout << "SQL: " << aQuery << endl;
+			return rs;
 		}
 
 	private:

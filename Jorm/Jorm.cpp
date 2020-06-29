@@ -66,9 +66,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 	Rjson obj;
-	obj.AddValueString("usesrname", "ÕÅ");
-	/*obj.AddValueString("password", "123");
-	obj.AddValueString("fuzzy", "1");*/
+	/*obj.AddValueString("username", "´óÕÅÎ°");
+	obj.AddValueString("password", "3252");*/
 	Rjson rs = db->select("users", obj);
 
 	vector<string> keys = rs.GetAllKeys();
