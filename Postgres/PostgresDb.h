@@ -251,17 +251,24 @@ namespace Postgres {
 			connection* pq = GetConnection();
 			if (pq == nullptr)
 				return Utils::MakeJsonObjectForFuncReturn(STDBCONNECTERR);
-			/* Create a non-transactional object. */
 			nontransaction N(*pq);
-			/* Execute SQL query */
 			result R(N.exec(u8Query));
-
+			
+			size_t coLen = R.columns();
+			vector<Rjson> arr;
 			for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
-				cout << "ID = " << c[0].as<int>() << endl;
-				cout << "Name = " << Utils::U8ToUnicode((char*)(c[1].as<string>()).c_str()) << endl;
-				cout << "Age = " << c[2].as<int>() << endl;
+				Rjson al;
+				for (int i = 0; i < coLen; ++i)
+				{
+					al.AddValueString(R.column_name(i), Utils::U8ToUnicode((char*)c[i].c_str()));
+				}
+				arr.push_back(al);
 			}
+			if (arr.empty())
+				rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STQUERYEMPTY));
+			rs.AddValueObjectArray("data", arr);
 
+			cout << "SQL: " << aQuery << endl;
 			return rs;
 		}
 
