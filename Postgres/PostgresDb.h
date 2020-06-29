@@ -22,18 +22,25 @@ namespace Postgres {
 	{
 
 	private:
-		connection* GetConnection() {
+		connection* GetConnection(string* err = nullptr) {
 			//srand((unsigned int)(time(NULL)));
 			size_t index = (rand() % maxConn) + 1;
 			if (index > pool.size()) {
-				connection* pqsql;
-				pqsql = new connection(connStr);
-				if (pqsql->is_open())
-				{
-					pool.push_back(pqsql);
-					return pqsql;
+				try {
+					connection* pqsql;
+					pqsql = new connection(connStr);
+					if (pqsql->is_open())
+					{
+						pool.push_back(pqsql);
+						return pqsql;
+					}
+					else
+						return nullptr;
 				}
-				return nullptr;
+				catch (const std::exception& e) {
+					err = new string(e.what());
+					return nullptr;
+				}
 			}
 			else {
 				return pool.at(index - 1);
@@ -42,10 +49,10 @@ namespace Postgres {
 
 	public:
 
-		PostgresDb(string connStr):connStr(connStr) {
+		PostgresDb(string connStr) :connStr(connStr) {
 		}
 
-		Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>(), int queryType = 1) 
+		Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>(), int queryType = 1)
 		{
 			if (params.IsObject()) {
 				string querySql = "";
@@ -202,45 +209,55 @@ namespace Postgres {
 		}
 
 
-		Rjson create(string tablename, Rjson& params) 
+		Rjson create(string tablename, Rjson& params)
 		{
 			throw std::logic_error("The method or operation is not implemented.");
 		}
 
 
-		Rjson update(string tablename, Rjson& params) 
+		Rjson update(string tablename, Rjson& params)
 		{
 			throw std::logic_error("The method or operation is not implemented.");
 		}
 
 
-		Rjson remove(string tablename, Rjson& params) 
+		Rjson remove(string tablename, Rjson& params)
 		{
 			throw std::logic_error("The method or operation is not implemented.");
 		}
 
 
-		Rjson querySql(string sql, Rjson& params = Rjson(), vector<string> filelds = vector<string>()) 
+		Rjson querySql(string sql, Rjson& params = Rjson(), vector<string> filelds = vector<string>())
 		{
 			throw std::logic_error("The method or operation is not implemented.");
 		}
 
 
-		Rjson execSql(string sql) 
+		Rjson execSql(string sql)
 		{
 			throw std::logic_error("The method or operation is not implemented.");
 		}
 
 
-		Rjson insertBatch(string tablename, vector<Rjson> elements) 
+		Rjson insertBatch(string tablename, vector<Rjson> elements)
 		{
 			throw std::logic_error("The method or operation is not implemented.");
 		}
 
 
-		Rjson transGo(vector<string> sqls, bool isAsync = false) 
+		Rjson transGo(vector<string> sqls, bool isAsync = false)
 		{
 			throw std::logic_error("The method or operation is not implemented.");
+		}
+
+
+		~PostgresDb()
+		{
+			while (pool.size())
+			{
+				(pool.back())->disconnect();
+				pool.pop_back();
+			}
 		}
 
 	private:
@@ -248,32 +265,38 @@ namespace Postgres {
 		Rjson ExecQuerySql(string aQuery, vector<string> fields) {
 			Rjson rs = Utils::MakeJsonObjectForFuncReturn(STSUCCESS);
 			string u8Query = Utils::UnicodeToU8(aQuery);
-			connection* pq = GetConnection();
+			string err;
+			connection* pq = GetConnection(&err);
 			if (pq == nullptr)
-				return Utils::MakeJsonObjectForFuncReturn(STDBCONNECTERR);
-			nontransaction N(*pq);
-			result R(N.exec(u8Query));
-			
-			size_t coLen = R.columns();
-			vector<Rjson> arr;
-			for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
-				Rjson al;
-				for (int i = 0; i < coLen; ++i)
-				{
-					al.AddValueString(R.column_name(i), Utils::U8ToUnicode((char*)c[i].c_str()));
-				}
-				arr.push_back(al);
-			}
-			if (arr.empty())
-				rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STQUERYEMPTY));
-			rs.AddValueObjectArray("data", arr);
+				return Utils::MakeJsonObjectForFuncReturn(STDBCONNECTERR, Utils::U8ToUnicode((char*)err.c_str()));
+			try {
+				nontransaction N(*pq);
+				result R(N.exec(u8Query));
 
-			cout << "SQL: " << aQuery << endl;
-			return rs;
+				size_t coLen = R.columns();
+				vector<Rjson> arr;
+				for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
+					Rjson al;
+					for (int i = 0; i < coLen; ++i)
+					{
+						al.AddValueString(R.column_name(i), Utils::U8ToUnicode((char*)c[i].c_str()));
+					}
+					arr.push_back(al);
+				}
+				if (arr.empty())
+					rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STQUERYEMPTY));
+				rs.AddValueObjectArray("data", arr);
+
+				cout << "SQL: " << aQuery << endl;
+				return rs;
+			}
+			catch (const std::exception& e) {
+				return Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR, Utils::U8ToUnicode((char*)e.what()));
+			}
 		}
 
 	private:
-		vector<connection *> pool;
+		vector<connection*> pool;
 		int maxConn;
 		string connStr;
 	};
