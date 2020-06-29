@@ -11,7 +11,8 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	DbBase * db = new DbBase("localhost", "Postgres");
+	DbBase* db = new DbBase("dbname = Jorm user = root password = 123456 \
+      hostaddr = localhost port = 5432", "Postgres");
 	/*Rjson obj;
 	obj.AddValueString("username", "≤Â»Î≤‚ ‘");
 	obj.AddValueInt("password", 3245);

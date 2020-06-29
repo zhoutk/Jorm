@@ -17,6 +17,9 @@ public:
 			db = new Sqlit3::Sqlit3Db(connStr);
 		else if (dbType.compare("postgres") == 0)
 			db = new Postgres::PostgresDb(connStr);
+		else {
+			throw "Db Type error or not be supported. ";
+		}
 	};
 	~DbBase() {
 		if (db) {
