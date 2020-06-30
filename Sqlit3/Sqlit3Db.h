@@ -228,7 +228,7 @@ namespace Sqlit3 {
 					sqlite3_exec(getHandle(), "commit;", 0, 0, 0);
 					sqlite3_close(getHandle());
 					cout << "Transaction Success: run " << sqls.size() << " sqls." << endl;
-					return Utils::MakeJsonObjectForFuncReturn(STSUCCESS, "insertBatch success.");
+					return Utils::MakeJsonObjectForFuncReturn(STSUCCESS, "Transaction success.");
 				}
 				else
 				{

@@ -19,10 +19,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	Rjson rs = db->create("users", obj);
 	cout << "The result is : " << rs.GetJsonString() << endl;*/
 
-	/*vector<string> sqls;
-	sqls.push_back("insert into users (password, username) values (\"'4312'\", \"test测试\") ");
-	sqls.push_back("update users set passw5ord = 9876 where id = 14");
-	db->transGo(sqls);*/
+	vector<string> sqls;
+	sqls.push_back("insert into users (password, username) values ('4312', 'tranGo 测试') ");
+	sqls.push_back("update users set password = 9876 where id = 14");
+	Rjson rs = db->transGo(sqls);
+	cout << "The result is : " << rs.GetJsonString() << endl;
 
 	//char* strTmp = "abcdefghijklmnopqrstuvwxyz";
 	//clock_t start = clock();
@@ -67,38 +68,38 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 
-	Rjson obj;
-	/*obj.AddValueString("username", "大张伟");
-	obj.AddValueString("password", "3252");*/
-	//Rjson rs = db->create("users", obj);
-	Rjson rs = db->select("users", obj);
+	//Rjson obj;
+	///*obj.AddValueString("username", "大张伟");
+	//obj.AddValueString("password", "3252");*/
+	////Rjson rs = db->create("users", obj);
+	//Rjson rs = db->select("users", obj);
 
-	vector<string> keys = rs.GetAllKeys();
+	//vector<string> keys = rs.GetAllKeys();
 
-	int len = keys.size();
-	for (int i = 0; i < len; i++) {
-		string v, key = keys[i];
-		int vType;
-		rs.GetValueAndTypeByKey(key, &v, &vType);
-		if (vType == 4) {
-			cout << "    " << key << " is array: " << endl;
-			cout << "-------------------------------------" << endl;
-			vector<Rjson> arr = rs.GetArrayByKey(key);
-			for (size_t j = 0; j < arr.size(); j++) {
-				Rjson al = arr[j];
-				vector<string> subKeys = al.GetAllKeys();
-				for (size_t k = 0; k < subKeys.size(); k++) {
-					string sv;
-					int nstype;
-					al.GetValueAndTypeByKey(subKeys[k], &sv, &nstype);
-					cout << "    " << subKeys[k] << ", value: " << sv << endl;
-				}
-				cout << endl;
-			}
-			//cout << "-------------------------------------" << endl;
-		}else
-			cout << "key: " << key << ", value: " << v << endl;
-	}
+	//int len = keys.size();
+	//for (int i = 0; i < len; i++) {
+	//	string v, key = keys[i];
+	//	int vType;
+	//	rs.GetValueAndTypeByKey(key, &v, &vType);
+	//	if (vType == 4) {
+	//		cout << "    " << key << " is array: " << endl;
+	//		cout << "-------------------------------------" << endl;
+	//		vector<Rjson> arr = rs.GetArrayByKey(key);
+	//		for (size_t j = 0; j < arr.size(); j++) {
+	//			Rjson al = arr[j];
+	//			vector<string> subKeys = al.GetAllKeys();
+	//			for (size_t k = 0; k < subKeys.size(); k++) {
+	//				string sv;
+	//				int nstype;
+	//				al.GetValueAndTypeByKey(subKeys[k], &sv, &nstype);
+	//				cout << "    " << subKeys[k] << ", value: " << sv << endl;
+	//			}
+	//			cout << endl;
+	//		}
+	//		//cout << "-------------------------------------" << endl;
+	//	}else
+	//		cout << "key: " << key << ", value: " << v << endl;
+	//}
 
 
 

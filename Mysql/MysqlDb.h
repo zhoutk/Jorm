@@ -394,7 +394,7 @@ namespace Mysql {
 				{
 					mysql_query(mysql, "commit;");
 					cout << "Transaction Success: run " << sqls.size() << " sqls." << endl;
-					return Utils::MakeJsonObjectForFuncReturn(STSUCCESS, "insertBatch success.");
+					return Utils::MakeJsonObjectForFuncReturn(STSUCCESS, "Transaction success.");
 				}
 				else
 				{

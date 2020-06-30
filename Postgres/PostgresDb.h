@@ -168,55 +168,6 @@ namespace Postgres {
 			return ExecNoneQuerySql(sql);
 		}
 
-		Rjson insertBatch(string tablename, vector<Rjson> elements, string constraint)
-		{
-			string sql = "insert into ";
-			vector<string> restrain = Utils::MakeVectorInitFromString(constraint);
-			if (elements.empty()) {
-				return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
-			}
-			else {
-				string keyStr = " ( ";
-				string updateStr = "";
-				keyStr.append(Utils::GetVectorJoinStr(elements[0].GetAllKeys())).append(" ) values ");
-				for (size_t i = 0; i < elements.size(); i++) {
-					vector<string> keys = elements[i].GetAllKeys();
-					string valueStr = " ( ";
-					for (size_t j = 0; j < keys.size(); j++) {
-						if (i == 0) {
-							vector<string>::iterator iter = find(restrain.begin(), restrain.end(), keys[j]);
-							if (iter == restrain.end())
-								updateStr.append(keys[j]).append(" = excluded.").append(keys[j]).append(",");
-						}
-						valueStr.append("'").append(elements[i][keys[j]]).append("'");
-						if (j < keys.size() - 1) {
-							valueStr.append(",");
-						}
-					}
-					valueStr.append(" )");
-					if (i < elements.size() - 1) {
-						valueStr.append(",");
-					}
-					keyStr.append(valueStr);
-				}
-				if (updateStr.length() == 0) {
-					sql.append(tablename).append(keyStr);
-				}
-				else
-				{
-					updateStr = updateStr.substr(0, updateStr.length() - 1);
-					sql.append(tablename).append(keyStr).append(" on conflict (").append(constraint).append(") do update set ").append(updateStr);
-				}
-			}
-			return ExecNoneQuerySql(sql);
-		}
-
-
-		Rjson transGo(vector<string> sqls, bool isAsync = false)
-		{
-			throw std::logic_error("The method or operation is not implemented.");
-		}
-
 		Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>(), int queryType = 1)
 		{
 			if (params.IsObject()) {
@@ -373,8 +324,74 @@ namespace Postgres {
 			}
 		}
 
+		Rjson insertBatch(string tablename, vector<Rjson> elements, string constraint)
+		{
+			string sql = "insert into ";
+			vector<string> restrain = Utils::MakeVectorInitFromString(constraint);
+			if (elements.empty()) {
+				return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+			}
+			else {
+				string keyStr = " ( ";
+				string updateStr = "";
+				keyStr.append(Utils::GetVectorJoinStr(elements[0].GetAllKeys())).append(" ) values ");
+				for (size_t i = 0; i < elements.size(); i++) {
+					vector<string> keys = elements[i].GetAllKeys();
+					string valueStr = " ( ";
+					for (size_t j = 0; j < keys.size(); j++) {
+						if (i == 0) {
+							vector<string>::iterator iter = find(restrain.begin(), restrain.end(), keys[j]);
+							if (iter == restrain.end())
+								updateStr.append(keys[j]).append(" = excluded.").append(keys[j]).append(",");
+						}
+						valueStr.append("'").append(elements[i][keys[j]]).append("'");
+						if (j < keys.size() - 1) {
+							valueStr.append(",");
+						}
+					}
+					valueStr.append(" )");
+					if (i < elements.size() - 1) {
+						valueStr.append(",");
+					}
+					keyStr.append(valueStr);
+				}
+				if (updateStr.length() == 0) {
+					sql.append(tablename).append(keyStr);
+				}
+				else
+				{
+					updateStr = updateStr.substr(0, updateStr.length() - 1);
+					sql.append(tablename).append(keyStr).append(" on conflict (").append(constraint).append(") do update set ").append(updateStr);
+				}
+			}
+			return ExecNoneQuerySql(sql);
+		}
 
-
+		Rjson transGo(vector<string> sqls, bool isAsync = false)
+		{
+			if (sqls.empty()) {
+				return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+			}
+			else {
+				string err;
+				connection* pq = GetConnection(&err);
+				if (pq == nullptr)
+					return Utils::MakeJsonObjectForFuncReturn(STDBCONNECTERR, Utils::U8ToUnicode((char*)err.c_str()));
+				try {
+					work T(*pq);
+					for (size_t i = 0; i < sqls.size(); i++) {
+						string u8Query = Utils::UnicodeToU8(sqls[i]);
+						T.exec(u8Query);
+					}
+					T.commit();
+					cout << "Transaction Success: run " << sqls.size() << " sqls." << endl;
+					return Utils::MakeJsonObjectForFuncReturn(STSUCCESS, "Transaction success.");
+				}
+				catch (std::exception& e) {
+					return Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR, Utils::U8ToUnicode((char*)e.what()));
+				}
+			}
+		}
 
 
 		~PostgresDb()
