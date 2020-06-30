@@ -89,9 +89,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Sqlit3.lib;libmysql.lib;libpqxx_staticD.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Sqlit3.lib;libmysql.lib;libpq.lib;libpqxxD.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\codes\Jorm\thirds\MySQL-C-Api-6.1\lib;D:\codes\Jorm\thirds\postgres\lib;$(SolutionDir)$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <TargetMachine>MachineX64</TargetMachine>
+      <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
