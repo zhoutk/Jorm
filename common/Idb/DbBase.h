@@ -51,8 +51,8 @@ public:
 		return db->execSql(sql);
 	}
 
-	Rjson insertBatch(string tablename, vector<Rjson> elements) {
-		return db->insertBatch(tablename, elements);
+	Rjson insertBatch(string tablename, vector<Rjson> elements, string constraint = "id") {
+		return db->insertBatch(tablename, elements, constraint);
 	}
 
 	Rjson transGo(vector<string> sqls, bool isAsync = false) {

@@ -331,7 +331,7 @@ namespace Mysql {
 		}
 
 
-		Rjson insertBatch(string tablename, vector<Rjson> elements) override
+		Rjson insertBatch(string tablename, vector<Rjson> elements, string constraint) override
 		{
 			string sql = "insert into ";
 			if (elements.empty()) {

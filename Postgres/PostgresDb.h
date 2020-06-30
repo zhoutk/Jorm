@@ -168,10 +168,47 @@ namespace Postgres {
 			return ExecNoneQuerySql(sql);
 		}
 
-
-		Rjson insertBatch(string tablename, vector<Rjson> elements)
+		Rjson insertBatch(string tablename, vector<Rjson> elements, string constraint)
 		{
-			throw std::logic_error("The method or operation is not implemented.");
+			string sql = "insert into ";
+			vector<string> restrain = Utils::MakeVectorInitFromString(constraint);
+			if (elements.empty()) {
+				return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
+			}
+			else {
+				string keyStr = " ( ";
+				string updateStr = "";
+				keyStr.append(Utils::GetVectorJoinStr(elements[0].GetAllKeys())).append(" ) values ");
+				for (size_t i = 0; i < elements.size(); i++) {
+					vector<string> keys = elements[i].GetAllKeys();
+					string valueStr = " ( ";
+					for (size_t j = 0; j < keys.size(); j++) {
+						if (i == 0) {
+							vector<string>::iterator iter = find(restrain.begin(), restrain.end(), keys[j]);
+							if (iter == restrain.end())
+								updateStr.append(keys[j]).append(" = excluded.").append(keys[j]).append(",");
+						}
+						valueStr.append("'").append(elements[i][keys[j]]).append("'");
+						if (j < keys.size() - 1) {
+							valueStr.append(",");
+						}
+					}
+					valueStr.append(" )");
+					if (i < elements.size() - 1) {
+						valueStr.append(",");
+					}
+					keyStr.append(valueStr);
+				}
+				if (updateStr.length() == 0) {
+					sql.append(tablename).append(keyStr);
+				}
+				else
+				{
+					updateStr = updateStr.substr(0, updateStr.length() - 1);
+					sql.append(tablename).append(keyStr).append(" on conflict (").append(constraint).append(") do update set ").append(updateStr);
+				}
+			}
+			return ExecNoneQuerySql(sql);
 		}
 
 
@@ -337,7 +374,7 @@ namespace Postgres {
 		}
 
 
-		
+
 
 
 		~PostgresDb()

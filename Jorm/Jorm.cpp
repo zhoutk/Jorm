@@ -45,7 +45,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//vector<Rjson> els;
 	//char* strTmp = "abcdefghijklmnopqrstuvwxyz";
 	//clock_t start = clock();
-	//for (int i = 0; i < 4; i++) {
+	//for (int i = 0; i < 3; i++) {
 	//	Rjson qObj;
 	//	qObj.AddValueInt("password", rand());
 	//	int len = rand() % 5 + 5;
@@ -56,19 +56,22 @@ int _tmain(int argc, _TCHAR* argv[])
 	//		uname.append(1, strTmp[rand() % 26]);
 	//	}
 	//	qObj.AddValueString("username", uname);
+	//	qObj.AddValueString("update_time", Utils::GetLocalNowTime());
 	//	els.push_back(qObj);
 	//}
 
 	//Rjson rs = db->insertBatch("users", els);			//, Utils::MakeVectorInitFromString("id,username,password")
+	//cout << "The result is : " << rs.GetJsonString() << endl;
 	//clock_t end = clock();
 	//cout << "花费了" << (double)(end - start) / CLOCKS_PER_SEC << "秒" << endl;
 
 
 
 	Rjson obj;
-	obj.AddValueString("username", "大张伟");
-	obj.AddValueString("password", "3252");
-	Rjson rs = db->create("users", obj);
+	/*obj.AddValueString("username", "大张伟");
+	obj.AddValueString("password", "3252");*/
+	//Rjson rs = db->create("users", obj);
+	Rjson rs = db->select("users", obj);
 
 	vector<string> keys = rs.GetAllKeys();
 

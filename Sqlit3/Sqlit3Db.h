@@ -177,7 +177,7 @@ namespace Sqlit3 {
 			return select(sql, params, filelds, 2);
 		}
 
-		Rjson insertBatch(string tablename, vector<Rjson> elements) {
+		Rjson insertBatch(string tablename, vector<Rjson> elements, string constraint) {
 			string sql = "insert into ";
 			if (elements.empty()) {
 				return Utils::MakeJsonObjectForFuncReturn(STPARAMERR);
