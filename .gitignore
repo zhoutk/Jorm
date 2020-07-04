@@ -1,6 +1,7 @@
 Debug/
 Release/
 ReleaseD/
+x64/
 .vs/
 ipch/
 *.sdf
