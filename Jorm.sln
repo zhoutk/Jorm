@@ -1,7 +1,12 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Jorm", "Jorm\Jorm.vcxproj", "{DDA1F230-84C3-4FCE-8605-13C22E1D8CE3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{885ADF8F-1BF3-4ECC-BCDC-C831A91B50E2} = {885ADF8F-1BF3-4ECC-BCDC-C831A91B50E2}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "common\Common.vcxproj", "{1837AED1-6C18-4990-A313-412A2A5B6FED}"
 EndProject

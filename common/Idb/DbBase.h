@@ -3,11 +3,15 @@
 #include "../Sqlit3/Sqlit3Db.h"
 #include "../Mysql/MysqlDb.h"
 #include "../Postgres/PostgresDb.h"
+#include "../Oracle/OracleDb.h"
 #include <algorithm>
 
 class DbBase
 {
 public:
+	DbBase(string dbuser, string dbpwd, string dbtns) {
+		db = new Oracle::OracleDb(dbuser, dbpwd, dbtns);
+	}
 	DbBase(string dbhost, string dbuser, string dbpwd, string dbname, int port = 3306) {
 		db = new Mysql::MysqlDb(dbhost, dbuser, dbpwd, dbname, port);
 	}
