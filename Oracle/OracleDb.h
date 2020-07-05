@@ -57,7 +57,7 @@ namespace Oracle {
 
 		Rjson select(string tablename, Rjson& params, vector<string> fields = vector<string>(), int queryType = 1) override
 		{
-			return ExecQuerySql("select * from users", fields);
+			return ExecQuerySql("select * from \"users\"", fields);
 		}
 
 
@@ -115,7 +115,12 @@ namespace Oracle {
 				Statement* stmt = conn->createStatement();
 				ResultSet * R = stmt->executeQuery(u8Query);
 
-				auto coLen = R->getColumnListMetaData();
+				while (R->next())
+				{
+					cout << R->getInt(1) /*<< " --- " << R->getString(3) << " --- " << R->getString(4)*/ << endl;
+				}
+
+				//auto coLen = R->getColumnListMetaData();
 				/*vector<Rjson> arr;
 				for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
 					Rjson al;
@@ -130,11 +135,13 @@ namespace Oracle {
 				rs.AddValueObjectArray("data", arr);
 
 				cout << "SQL: " << aQuery << endl;*/
-				return rs;
+				stmt->closeResultSet(R);
+				conn->terminateStatement(stmt);
 			}
 			catch (const std::exception& e) {
 				return Utils::MakeJsonObjectForFuncReturn(STDBOPERATEERR, Utils::U8ToUnicode((char*)e.what()));
 			}
+			return rs;
 		}
 
 	private:
