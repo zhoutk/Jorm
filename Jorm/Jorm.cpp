@@ -11,12 +11,12 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	//DbBase* db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
+	DbBase* db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
 	//DbBase* db = new DbBase("localhost", "root", "123456", "jorm");
 	//DbBase* db = new DbBase("dbname = Jorm user = root password = 123456 \
       hostaddr = 127.0.0.1 port = 5432", "Postgres");
 
-	DbBase* db = new DbBase("HR", "a1b2c3", "127.0.0.1:1521/xe");
+	//DbBase* db = new DbBase("HR", "a1b2c3", "127.0.0.1:1521/xe");
 
 	/*Rjson obj;
 	obj.AddValueString("username", "≤Â»Î≤‚ ‘");

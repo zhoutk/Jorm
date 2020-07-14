@@ -1,5 +1,5 @@
 #pragma once
-#include "../common//Idb/Idb.h"
+#include "../common/Idb/Idb.h"
 #include "../thirds/sqlit3/sqlite3.h"
 #include "../common/Utils/Utils.h"
 #include "../common/Utils/GlobalConstants.h"
@@ -18,8 +18,7 @@ namespace Sqlit3 {
 
 	const int   OK = SQLITE_OK;
 
-	char* QUERY_EXTRA_KEYS[] = { "ins", "lks", "ors" };
-	char* QUERY_UNEQ_OPERS[] = { ">,", ">=,", "<,", "<=,", "<>,", "=," };
+	
 
 	class Sqlit3Db : public Idb
 	{
@@ -36,6 +35,8 @@ namespace Sqlit3 {
 	private:
 		std::unique_ptr<sqlite3, Deleter> mSQLitePtr;
 		std::string mFilename;
+		vector<string> QUERY_EXTRA_KEYS;
+		vector<string> QUERY_UNEQ_OPERS;
 
 	public:
 		Sqlit3Db(const char* apFilename,
@@ -43,6 +44,15 @@ namespace Sqlit3 {
 			const int   aBusyTimeoutMs = 0,
 			const char* apVfs = nullptr) : mFilename(apFilename)
 		{
+			QUERY_EXTRA_KEYS = Utils::MakeVectorInitFromString("ins,lks,ors");
+
+			QUERY_UNEQ_OPERS.push_back(">,");
+			QUERY_UNEQ_OPERS.push_back(">=,");
+			QUERY_UNEQ_OPERS.push_back("<,");
+			QUERY_UNEQ_OPERS.push_back("<=,");
+			QUERY_UNEQ_OPERS.push_back("<>,");
+			QUERY_UNEQ_OPERS.push_back("=,");
+
 			sqlite3* handle;
 			const int ret = sqlite3_open_v2(apFilename, &handle, aFlags, apVfs);
 			mSQLitePtr.reset(handle);
@@ -210,7 +220,7 @@ namespace Sqlit3 {
 			}
 			else {
 				char* zErrMsg = 0;
-				bool isExecSuccess = true; 
+				bool isExecSuccess = true;
 				sqlite3_exec(getHandle(), "begin;", 0, 0, &zErrMsg);
 				for (size_t i = 0; i < sqls.size(); i++) {
 					string u8Query = Utils::UnicodeToU8(sqls[i]);
@@ -269,7 +279,7 @@ namespace Sqlit3 {
 						where.append(AndJoinStr);
 					}
 
-					if (Utils::FindCharArray(QUERY_EXTRA_KEYS, (char*)k.c_str())) {   // process key
+					if (Utils::FindStringFromVector(QUERY_EXTRA_KEYS, k)) {   // process key
 						string whereExtra = "";
 						vector<string> ele = Utils::MakeVectorInitFromString(params[k]);
 						if (ele.size() < 2 || ((k.compare("ors") == 0 || k.compare("lks") == 0) && ele.size() % 2 == 1)) {
@@ -303,7 +313,7 @@ namespace Sqlit3 {
 						where.append(whereExtra);
 					}
 					else {				// process value
-						if (Utils::FindStartsCharArray(QUERY_UNEQ_OPERS, (char*)v.c_str())) {
+						if (Utils::FindStartsStringFromVector(QUERY_UNEQ_OPERS, (char*)v.c_str())) {
 							vector<string> vls = Utils::MakeVectorInitFromString(v);
 							if (vls.size() == 2) {
 								where.append(k).append(vls.at(0)).append("'").append(vls.at(1)).append("'");
@@ -448,16 +458,19 @@ namespace Sqlit3 {
 							al.AddValueInt(k, sqlite3_column_int(stmt, j));
 						}
 						else if (nType == 2) {				//SQLITE_FLOAT
-
+							al.AddValueFloat(k, sqlite3_column_double(stmt, j));
 						}
 						else if (nType == 3) {				//SQLITE_TEXT
 							al.AddValueString(k, Utils::U8ToUnicode((char*)sqlite3_column_text(stmt, j)));
 						}
-						else if (nType == 4) {				//SQLITE_BLOB
+						//else if (nType == 4) {				//SQLITE_BLOB
 
-						}
-						else if (nType == 5) {				//SQLITE_NULL
+						//}
+						//else if (nType == 5) {				//SQLITE_NULL
 
+						//}
+						else{
+							al.AddValueString(k, "");
 						}
 					}
 					arr.push_back(al);
@@ -491,5 +504,4 @@ namespace Sqlit3 {
 		}
 
 	};
-
 }
