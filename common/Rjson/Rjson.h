@@ -103,14 +103,64 @@ public:
 		string* newK = new string(k);
 		Value aInt(kNumberType);
 		aInt.SetInt(v);
-		json->AddMember(StringRef(newK->c_str()), aInt, json->GetAllocator());
+		
+		if (json->HasMember(k.c_str())) {
+			Value& v = (*json)[k.c_str()];
+			v.CopyFrom(aInt, json->GetAllocator());
+		}
+		else {
+			json->AddMember(StringRef(newK->c_str()), aInt, json->GetAllocator());
+		}
+	}
+
+	void AddValueFloat(string k, double v) {
+		string* newK = new string(k);
+		Value aDouble(kNumberType);
+		aDouble.SetDouble(v);
+
+		if (json->HasMember(k.c_str())) {
+			Value& v = (*json)[k.c_str()];
+			v.CopyFrom(aDouble, json->GetAllocator());
+		}
+		else {
+			json->AddMember(StringRef(newK->c_str()), aDouble, json->GetAllocator());
+		}
 	}
 
 	void AddValueString(string k, string v) {
 		string* newK = new string(k);
 		Value aStr(kStringType);
 		aStr.SetString(v.c_str(), json->GetAllocator());
-		json->AddMember(StringRef(newK->c_str()), aStr, json->GetAllocator());
+
+		if (json->HasMember(k.c_str())) {
+			Value& v = (*json)[k.c_str()];
+			v.CopyFrom(aStr, json->GetAllocator());
+		}
+		else {
+			json->AddMember(StringRef(newK->c_str()), aStr, json->GetAllocator());
+		}
+	}
+
+	void AddValueObject(string k, Rjson v) {
+		string* newK = new string(k);
+		Value aObj(kObjectType);
+
+		Document* al = v.GetOriginRapidJson();
+		for (auto iter = al->MemberBegin(); iter != al->MemberEnd(); ++iter)
+		{	//必须新建，要把内存放到这个json对象上，不然，目标值长度一大，就会出问题。
+			string* nkey = new string(iter->name.GetString());
+			Value nv;
+			nv.CopyFrom(iter->value, json->GetAllocator());
+			aObj.AddMember(StringRef(nkey->c_str()), nv, json->GetAllocator());
+		}
+
+		if (json->HasMember(k.c_str())) {
+			Value& v = (*json)[k.c_str()];
+			v.CopyFrom(aObj, json->GetAllocator());
+		}
+		else {
+			json->AddMember(StringRef(newK->c_str()), aObj, json->GetAllocator());
+		}
 	}
 
 	void AddValueArray(string k, vector<string>& arr) {
@@ -122,7 +172,14 @@ public:
 			al.SetString(arr.at(i).c_str(),json->GetAllocator());
 			rows.PushBack(al, json->GetAllocator());
 		}
-		json->AddMember(StringRef(newK->c_str()), rows, json->GetAllocator());
+		
+		if (json->HasMember(k.c_str())) {
+			Value& v = (*json)[k.c_str()];
+			v.CopyFrom(rows, json->GetAllocator());
+		}
+		else {
+			json->AddMember(StringRef(newK->c_str()), rows, json->GetAllocator());
+		}
 	}
 
 	void AddValueObjectArray(string k, vector<Rjson>& arr) {
@@ -141,7 +198,14 @@ public:
 			}
 			rows.PushBack(arow, json->GetAllocator());
 		}
-		json->AddMember(StringRef(newK->c_str()), rows, json->GetAllocator());
+		
+		if (json->HasMember(k.c_str())) {
+			Value& v = (*json)[k.c_str()];
+			v.CopyFrom(rows, json->GetAllocator());
+		}
+		else {
+			json->AddMember(StringRef(newK->c_str()), rows, json->GetAllocator());
+		}
 	}
 
 	void GetValueAndTypeByKey(string key, string* v, int* vType) {
@@ -156,11 +220,17 @@ public:
 			else if (iter->value.IsString()) {
 				*v = iter->value.GetString();
 			}
-			else if (iter->value.IsArray()) {
+			/*else if (iter->value.IsArray()) {
 				*v = GetJsonString((Value&)iter->value);
 			}
+			else if (iter->value.IsObject()) {
+				*v = GetJsonString((Value&)iter->value);
+			}
+			else if (iter->value.IsDouble()) {
+				*v = GetJsonString((Value&)iter->value);
+			}*/
 			else {
-				*v = "";
+				*v = GetJsonString((Value&)iter->value);
 			}
 		}
 		else {
