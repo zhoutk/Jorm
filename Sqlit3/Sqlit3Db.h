@@ -40,7 +40,7 @@ namespace Sqlit3 {
 
 	public:
 		Sqlit3Db(const char* apFilename,
-			const int   aFlags = OPEN_READWRITE,
+			const int   aFlags = OPEN_READWRITE | OPEN_CREATE,
 			const int   aBusyTimeoutMs = 0,
 			const char* apVfs = nullptr) : mFilename(apFilename)
 		{
@@ -58,20 +58,26 @@ namespace Sqlit3 {
 			mSQLitePtr.reset(handle);
 			if (SQLITE_OK != ret)
 			{
-				throw "SQLite Error, return code: " + ret;
+				string errmsg = "DB Error, code: ";
+				errmsg.append(Utils::IntTransToString(ret)).append("; message: ");
+				errmsg.append(sqlite3_errmsg(getHandle()));
+				throw errmsg;
 			}
 			if (aBusyTimeoutMs > 0)
 			{
 				const int ret = sqlite3_busy_timeout(getHandle(), aBusyTimeoutMs);
 				if (OK != ret)
 				{
-					throw "SQLite Error, return code: " + ret;
+					string errmsg = "DB Error, code: ";
+					errmsg.append(Utils::IntTransToString(ret)).append("; message: ");
+					errmsg.append(sqlite3_errmsg(getHandle()));
+					throw errmsg;
 				}
 			}
 		};
 
 		Sqlit3Db(const std::string& aFilename,
-			const int          aFlags = OPEN_READWRITE,
+			const int          aFlags = OPEN_READWRITE | OPEN_CREATE,
 			const int          aBusyTimeoutMs = 0,
 			const std::string& aVfs = "") {
 			new (this)Sqlit3Db(aFilename.c_str(), aFlags, aBusyTimeoutMs, aVfs.empty() ? nullptr : aVfs.c_str());
