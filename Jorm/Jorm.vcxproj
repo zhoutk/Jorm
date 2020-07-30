@@ -83,14 +83,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../Sqlit3;../thirds;../thirds/postgres;../thirds/oracle/include;../common/Utils;../common/Rjson;../common/Idb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Sqlit3;../thirds;../thirds/postgres;../thirds/oracle/include;../common/Utils;../common/Rjson;../common/Idb;$(QTDIR)\include;$(QTDIR)\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Sqlit3.lib;libmysql.lib;libpq.lib;libpqxxD.lib;oraocci19d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\codes\Jorm\thirds\MySQL-C-Api-6.1\lib;D:\codes\Jorm\thirds\postgres\lib;D:\codes\Jorm\thirds\oracle\lib;$(SolutionDir)$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Sqlit3.lib;libmysql.lib;libpq.lib;libpqxxD.lib;oraocci19d.lib;Qt5Cored.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\codes\Jorm\thirds\MySQL-C-Api-6.1\lib;D:\codes\Jorm\thirds\postgres\lib;D:\codes\Jorm\thirds\oracle\lib;$(SolutionDir)$(Configuration);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>

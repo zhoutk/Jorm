@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="Idb\DbBase.h" />
     <ClInclude Include="Idb\Idb.h" />
+    <ClInclude Include="Rjson\Qjson.h" />
     <ClInclude Include="Rjson\Rjson.h" />
     <ClInclude Include="Utils\GlobalConstants.h" />
     <ClInclude Include="Utils\Utils.h" />
@@ -76,14 +77,14 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>./Idb;./Utils;./Rjson;../Sqlit3;../thirds;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Idb;./Utils;./Rjson;../Sqlit3;../thirds;$(QTDIR)\include;$(QTDIR)\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>../thirds;$(SolutionDir)$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Sqlit3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../thirds;$(QTDIR)\lib;$(SolutionDir)$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Sqlit3.lib;Qt5Cored.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
