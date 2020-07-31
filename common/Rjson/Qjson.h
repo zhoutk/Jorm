@@ -85,6 +85,53 @@ public:
 		return *(this);
 	}
 
+	void AddValueInt(string k, int v) {
+		json->insert(k.c_str(), v);
+	}
+
+	void AddValueFloat(string k, double v) {
+		json->insert(k.c_str(), v);
+	}
+
+	void AddValueString(string k, string v) {
+		json->insert(k.c_str(), v.c_str());
+	}
+
+	void AddValueObject(string k, Qjson v) {
+		QJsonObject* al = v.GetOriginRapidJson();
+		QJsonObject aObj;
+		for (auto iter = al->begin(); iter != al->end(); ++iter)
+		{	
+			aObj.insert(iter.key(), iter.value());
+		}
+		json->insert(k.c_str(), aObj);
+	}
+
+	void AddValueArray(string k, vector<string>& arr) {
+		QJsonArray rows;
+		int len = arr.size();
+		for (int i = 0; i < len; i++) {
+			rows.push_back(QJsonValue(arr[i].c_str()));
+		}
+		json->insert(k.c_str(), rows);
+	}
+
+	void AddValueObjectArray(string k, vector<Qjson>& arr) {
+		int len = arr.size();
+		QJsonArray rows;
+		for (int i = 0; i < len; i++) {
+			QJsonObject arow;
+			QJsonObject* al = arr.at(i).GetOriginRapidJson();
+			for (auto iter = al->begin(); iter != al->end(); ++iter)
+			{	
+				arow.insert(iter.key(), iter.value());
+			}
+			rows.push_back(arow);
+		}
+
+		json->insert(k.c_str(), rows);
+	}
+
 	QString GetJsonQString() {
 		return QString(QJsonDocument(*json).toJson());
 	}
