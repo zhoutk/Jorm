@@ -44,6 +44,35 @@ public:
 		return rs;
 	}
 
+	Qjson& operator = (const Qjson& origin) {
+		new (this)Qjson(origin);
+		return(*this);
+	}
+
+	bool HasMember(string key) {
+		return json->contains(key.c_str());
+	}
+
+	string GetStringValueAndRemove(string key) {
+		string rs = (*this)[key];
+		if (HasMember(key)) {
+			json->remove(key.c_str());
+		}
+		return rs;
+	}
+
+	vector<Qjson> GetArrayByKey(string k) {
+		vector<Qjson> rs;
+		if (json->contains(k.c_str()) && (*json)[k.c_str()].isArray()) {
+			QJsonArray v = (*json)[k.c_str()].toArray();
+			size_t len = v.size();
+			for (size_t i = 0; i < len; i++) {
+				rs.push_back(Qjson(QString(QJsonDocument(v[i].toObject()).toJson(QJsonDocument::Compact))));
+			}
+		}
+		return rs;
+	}
+
 	QString GetJsonQString() {
 		return QString(QJsonDocument(*json).toJson());
 	}
@@ -94,10 +123,10 @@ public:
 
 private:
 	QString GetJsonQString(QJsonObject& v) {
-		return QString(QJsonDocument(v).toJson());
+		return QString(QJsonDocument(v).toJson(QJsonDocument::Compact));
 	}
 
 	string GetJsonString(QJsonObject& v) {
-		return QString(QJsonDocument(v).toJson()).toStdString();
+		return QString(QJsonDocument(v).toJson(QJsonDocument::Compact)).toStdString();
 	}
 };

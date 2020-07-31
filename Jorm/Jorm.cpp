@@ -12,10 +12,16 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	string jsonStr = "{\"id\":123, \"username\":\"zhoutk\", \"dd\":{\"subitem\":\"a item\"}}";
+	string jsonStr = "{\"id\":123, \"username\":\"zhoutk\", \"dd\":[{\"subitem\":\"a item\"},{\"subitem2\":\"second item\"}]}";
 	Qjson obj(jsonStr);
-	Qjson o(obj);
-	cout << o["id"] << o["username"] << o["dd"] ;
+	//cout << obj.GetArrayByKey("dd") ;
+
+	vector<Qjson> list = obj.GetArrayByKey("dd");
+	
+	for each (auto var in list)
+	{
+		cout << var.GetJsonString() << endl;
+	}
 
 	//DbBase* db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
 	//DbBase* db = new DbBase("localhost", "root", "123456", "jorm");
