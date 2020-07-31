@@ -175,6 +175,15 @@ public:
 		}
 	}
 
+	vector<string> GetAllKeys() {
+		vector<string> keys;
+		for (auto iter = json->begin(); iter != json->end(); ++iter)
+		{
+			keys.push_back(iter.key().toStdString());
+		}
+		return keys;
+	}
+
 	~Qjson() {
 		if (json)
 			delete json;

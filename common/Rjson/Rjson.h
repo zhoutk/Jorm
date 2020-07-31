@@ -239,14 +239,14 @@ public:
 		}
 	}
 
-	vector<string> GetStringArray() {
-		vector<string> rs;
-		for (auto iter = json->Begin(); iter != json->End(); ++iter)
-		{
-			rs.push_back(iter->GetString());
-		}
-		return rs;
-	}
+	//vector<string> GetStringArray() {
+	//	vector<string> rs;
+	//	for (auto iter = json->Begin(); iter != json->End(); ++iter)
+	//	{
+	//		rs.push_back(iter->GetString());
+	//	}
+	//	return rs;
+	//}
 
 	vector<string> GetAllKeys() {
 		vector<string> keys;
