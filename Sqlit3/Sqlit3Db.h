@@ -480,13 +480,11 @@ namespace Sqlit3 {
 							al.AddValueString(k, "");
 						}
 					}
-					cout << al.GetJsonString() << endl;
 					arr.push_back(al);
 				}
 				if (arr.empty())
 					rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STQUERYEMPTY));
 				rs.AddValueObjectArray("data", arr);
-				cout << rs.GetJsonString() << endl;
 			}
 			sqlite3_finalize(stmt);
 			cout << "SQL: " << aQuery << endl;

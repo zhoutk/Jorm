@@ -21,7 +21,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	int vType;
 	rs.GetValueAndTypeByKey("code", &v1, &vType);
 	
-	cout << rs.GetJsonString();
+	//cout << rs.GetJsonString();
 	assert(atoi(v1.c_str()), (int)STSUCCESS);
 
 	/*string jsonStr = "{\"id\":123, \"username\":\"zhoutk\", \"dd\":[{\"subitem\":\"a item\"},{\"subitem2\":\"second item\"}]}";

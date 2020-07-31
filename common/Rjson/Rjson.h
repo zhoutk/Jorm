@@ -22,7 +22,9 @@ public:
 	}
 
 	Rjson(const char* jstr) {
-		QJsonDocument jsonDocument = QJsonDocument::fromJson(QString::fromLocal8Bit(jstr).toLocal8Bit().data());
+		QByteArray ss = QString::fromLocal8Bit(jstr).toLocal8Bit().data();
+		//QJsonParseError error;
+		QJsonDocument jsonDocument = QJsonDocument::fromJson(QString::fromLocal8Bit(jstr).toUtf8()/*, &error*/);
 		_IsObject_ = jsonDocument.isObject();
 		json = new QJsonObject(jsonDocument.object());
 	}
@@ -32,7 +34,7 @@ public:
 	}
 
 	Rjson(QString jstr) {
-		new (this)Rjson(jstr.toStdString());
+		new (this)Rjson(jstr.toLocal8Bit().toStdString());
 	}
 
 	Rjson(const Rjson& origin) {
@@ -126,7 +128,6 @@ public:
 		for (int i = 0; i < len; i++) {
 			QJsonObject arow;
 			QJsonObject* al = arr.at(i).GetOriginRapidJson();
-			cout << arr.at(i).GetJsonString() << endl;
 			for (auto iter = al->begin(); iter != al->end(); ++iter)
 			{
 				arow.insert(iter.key(), iter.value());
