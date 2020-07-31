@@ -73,6 +73,18 @@ public:
 		return rs;
 	}
 
+	Qjson ExtendObject(Qjson& obj) {
+		QJsonObject* src = obj.GetOriginRapidJson();
+		for (auto iter = src->begin(); iter != src->end(); ++iter)
+		{
+			if (json->contains(iter.key())) {
+				json->remove(iter.key());
+			}
+			json->insert(iter.key(), iter.value());
+		}
+		return *(this);
+	}
+
 	QString GetJsonQString() {
 		return QString(QJsonDocument(*json).toJson());
 	}
@@ -122,6 +134,10 @@ public:
 	}
 
 private:
+	QJsonObject* GetOriginRapidJson() {
+		return json;
+	}
+
 	QString GetJsonQString(QJsonObject& v) {
 		return QString(QJsonDocument(v).toJson(QJsonDocument::Compact));
 	}
