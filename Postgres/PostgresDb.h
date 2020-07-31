@@ -246,11 +246,11 @@ namespace Postgres {
 								return Utils::MakeJsonObjectForFuncReturn(STPARAMERR, "not equal value is wrong.");
 							}
 						}
-						else if (!fuzzy.empty() && vType == kStringType) {
+						else if (!fuzzy.empty() && vType == QJsonValue::String) {
 							where.append(k).append(" like '%").append(v).append("%'");
 						}
 						else {
-							if (vType == kNumberType)
+							if (vType == QJsonValue::Double)
 								where.append(k).append(" = ").append(v);
 							else
 								where.append(k).append(" = '").append(v).append("'");

@@ -1,42 +1,47 @@
 #pragma once
 
-#include "../thirds/rapidjson/document.h"
-#include "../thirds/rapidjson/stringbuffer.h"
-#include "../thirds/rapidjson/writer.h"
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QString>
+#include <QDebug>
 #include <vector>
 #include <sstream>
 #include <iostream>
 
 using namespace std;
-using namespace rapidjson;
 
 class Rjson {
 private:
-	Document* json;
+	QJsonObject* json;
+	bool _IsObject_;
 
 public:
 	Rjson() {
-		json = new Document();
-		json->SetObject();
+		json = new QJsonObject();
 	}
 
 	Rjson(const char* jstr) {
-		json = new Document();
-		json->Parse(jstr);
+		QJsonDocument jsonDocument = QJsonDocument::fromJson(QString::fromLocal8Bit(jstr).toLocal8Bit().data());
+		_IsObject_ = jsonDocument.isObject();
+		json = new QJsonObject(jsonDocument.object());
 	}
 
 	Rjson(string jstr) {
 		new (this)Rjson(jstr.c_str());
 	}
 
+	Rjson(QString jstr) {
+		new (this)Rjson(jstr.toStdString());
+	}
+
 	Rjson(const Rjson& origin) {
-		json = new Document();
-		json->CopyFrom(*(origin.json), json->GetAllocator());
+		new (this)Rjson(QString(QJsonDocument(*(origin.json)).toJson(QJsonDocument::Compact)));
 	}
 
 	string operator[](string key) {
 		string rs = "";
-		if (json->HasMember(key.c_str())) {
+		if (json->contains(key.c_str())) {
 			int vType;
 			GetValueAndTypeByKey(key.c_str(), &rs, &vType);
 		}
@@ -49,223 +54,143 @@ public:
 	}
 
 	bool HasMember(string key) {
-		return json->HasMember(key.c_str());
+		return json->contains(key.c_str());
 	}
 
 	string GetStringValueAndRemove(string key) {
 		string rs = (*this)[key];
 		if (HasMember(key)) {
-			json->RemoveMember(key.c_str());
+			json->remove(key.c_str());
 		}
 		return rs;
 	}
 
 	vector<Rjson> GetArrayByKey(string k) {
 		vector<Rjson> rs;
-		if (json->HasMember(k.c_str()) && (*json)[k.c_str()].IsArray()) {
-			Value& v = (*json)[k.c_str()];
-			size_t len = v.Size();
+		if (json->contains(k.c_str()) && (*json)[k.c_str()].isArray()) {
+			QJsonArray v = (*json)[k.c_str()].toArray();
+			size_t len = v.size();
 			for (size_t i = 0; i < len; i++) {
-				Rjson al;
-				for (auto iter = v[i].MemberBegin(); iter != v[i].MemberEnd(); ++iter)
-				{
-					Value vv;
-					string* newK = new string(iter->name.GetString());
-					vv.CopyFrom(iter->value, al.json->GetAllocator());
-					al.json->AddMember(StringRef(newK->c_str()), vv, al.json->GetAllocator());
-				}
-				rs.push_back(al);
+				rs.push_back(Rjson(QString(QJsonDocument(v[i].toObject()).toJson(QJsonDocument::Compact))));
 			}
 		}
 		return rs;
 	}
 
 	Rjson ExtendObject(Rjson& obj) {
-		Document* src = obj.GetOriginRapidJson();
-		for (auto iter = src->MemberBegin(); iter != src->MemberEnd(); ++iter)
+		QJsonObject* src = obj.GetOriginRapidJson();
+		for (auto iter = src->begin(); iter != src->end(); ++iter)
 		{
-			if (json->HasMember(iter->name)) {
-				Value& v = (*json)[iter->name];
-				v.CopyFrom(iter->value, json->GetAllocator());
-				//v = (Value&)std::move(vTmp);
+			if (json->contains(iter.key())) {
+				json->remove(iter.key());
 			}
-			else {
-				string* newK = new string(iter->name.GetString());
-				Value vTmp;
-				vTmp.CopyFrom(iter->value, json->GetAllocator());
-				json->AddMember(StringRef(newK->c_str()), vTmp, json->GetAllocator());
-			}
+			json->insert(iter.key(), iter.value());
 		}
 		return *(this);
 	}
 
 	void AddValueInt(string k, int v) {
-		string* newK = new string(k);
-		Value aInt(kNumberType);
-		aInt.SetInt(v);
-		
-		if (json->HasMember(k.c_str())) {
-			Value& v = (*json)[k.c_str()];
-			v.CopyFrom(aInt, json->GetAllocator());
-		}
-		else {
-			json->AddMember(StringRef(newK->c_str()), aInt, json->GetAllocator());
-		}
+		json->insert(k.c_str(), v);
 	}
 
 	void AddValueFloat(string k, double v) {
-		string* newK = new string(k);
-		Value aDouble(kNumberType);
-		aDouble.SetDouble(v);
-
-		if (json->HasMember(k.c_str())) {
-			Value& v = (*json)[k.c_str()];
-			v.CopyFrom(aDouble, json->GetAllocator());
-		}
-		else {
-			json->AddMember(StringRef(newK->c_str()), aDouble, json->GetAllocator());
-		}
+		json->insert(k.c_str(), v);
 	}
 
 	void AddValueString(string k, string v) {
-		string* newK = new string(k);
-		Value aStr(kStringType);
-		aStr.SetString(v.c_str(), json->GetAllocator());
-
-		if (json->HasMember(k.c_str())) {
-			Value& v = (*json)[k.c_str()];
-			v.CopyFrom(aStr, json->GetAllocator());
-		}
-		else {
-			json->AddMember(StringRef(newK->c_str()), aStr, json->GetAllocator());
-		}
+		json->insert(k.c_str(), QString::fromLocal8Bit(v.c_str()));
 	}
 
 	void AddValueObject(string k, Rjson v) {
-		string* newK = new string(k);
-		Value aObj(kObjectType);
-
-		Document* al = v.GetOriginRapidJson();
-		for (auto iter = al->MemberBegin(); iter != al->MemberEnd(); ++iter)
-		{	//必须新建，要把内存放到这个json对象上，不然，目标值长度一大，就会出问题。
-			string* nkey = new string(iter->name.GetString());
-			Value nv;
-			nv.CopyFrom(iter->value, json->GetAllocator());
-			aObj.AddMember(StringRef(nkey->c_str()), nv, json->GetAllocator());
+		QJsonObject* al = v.GetOriginRapidJson();
+		QJsonObject aObj;
+		for (auto iter = al->begin(); iter != al->end(); ++iter)
+		{
+			aObj.insert(iter.key(), iter.value());
 		}
-
-		if (json->HasMember(k.c_str())) {
-			Value& v = (*json)[k.c_str()];
-			v.CopyFrom(aObj, json->GetAllocator());
-		}
-		else {
-			json->AddMember(StringRef(newK->c_str()), aObj, json->GetAllocator());
-		}
+		json->insert(k.c_str(), aObj);
 	}
 
 	void AddValueArray(string k, vector<string>& arr) {
-		string* newK = new string(k);
+		QJsonArray rows;
 		int len = arr.size();
-		Value rows(kArrayType);
 		for (int i = 0; i < len; i++) {
-			Value al(kStringType);
-			al.SetString(arr.at(i).c_str(),json->GetAllocator());
-			rows.PushBack(al, json->GetAllocator());
+			rows.push_back(QJsonValue(arr[i].c_str()));
 		}
-		
-		if (json->HasMember(k.c_str())) {
-			Value& v = (*json)[k.c_str()];
-			v.CopyFrom(rows, json->GetAllocator());
-		}
-		else {
-			json->AddMember(StringRef(newK->c_str()), rows, json->GetAllocator());
-		}
+		json->insert(k.c_str(), rows);
 	}
 
 	void AddValueObjectArray(string k, vector<Rjson>& arr) {
-		string* newK = new string(k);
 		int len = arr.size();
-		Value rows(kArrayType);
+		QJsonArray rows;
 		for (int i = 0; i < len; i++) {
-			Value arow(kObjectType);
-			Document* al = arr.at(i).GetOriginRapidJson();
-			for (auto iter = al->MemberBegin(); iter != al->MemberEnd(); ++iter)
-			{	//必须新建，要把内存放到这个json对象上，不然，目标值长度一大，就会出问题。
-				string* nkey = new string(iter->name.GetString());
-				Value nv;
-				nv.CopyFrom(iter->value, json->GetAllocator());
-				arow.AddMember(StringRef(nkey->c_str()), nv, json->GetAllocator());
+			QJsonObject arow;
+			QJsonObject* al = arr.at(i).GetOriginRapidJson();
+			cout << arr.at(i).GetJsonString() << endl;
+			for (auto iter = al->begin(); iter != al->end(); ++iter)
+			{
+				arow.insert(iter.key(), iter.value());
 			}
-			rows.PushBack(arow, json->GetAllocator());
+			rows.push_back(arow);
 		}
-		
-		if (json->HasMember(k.c_str())) {
-			Value& v = (*json)[k.c_str()];
-			v.CopyFrom(rows, json->GetAllocator());
-		}
-		else {
-			json->AddMember(StringRef(newK->c_str()), rows, json->GetAllocator());
-		}
+
+		json->insert(k.c_str(), rows);
+	}
+
+	QString GetJsonQString() {
+		return QString(QJsonDocument(*json).toJson());
+	}
+
+	string GetJsonString() {
+		return QString(QJsonDocument(*json).toJson(QJsonDocument::Compact)).toLocal8Bit().toStdString();
 	}
 
 	void GetValueAndTypeByKey(string key, string* v, int* vType) {
-		Value::ConstMemberIterator iter = json->FindMember(key.c_str());
-		if (iter != json->MemberEnd()) {
-			*vType = (int)(iter->value.GetType());
-			if (iter->value.IsInt()) {
-				std::stringstream s;
-				s << iter->value.GetInt();
-				*v = s.str();
+		QJsonObject::iterator iter = json->find(key.c_str());
+		if (iter != json->end()) {
+			*vType = (int)(iter->type());
+			if (iter->isNull()) {
+				*v = "null";
 			}
-			else if (iter->value.IsString()) {
-				*v = iter->value.GetString();
+			else if (iter->isBool()) {
+				*v = QString("%1").arg(iter->toBool()).toStdString();
 			}
-			/*else if (iter->value.IsArray()) {
-				*v = GetJsonString((Value&)iter->value);
+			else if (iter->isDouble()) {
+				*v = QString("%1").arg(iter->toDouble()).toStdString();
 			}
-			else if (iter->value.IsObject()) {
-				*v = GetJsonString((Value&)iter->value);
+			else if (iter->isString()) {
+				*v = iter->toString().toLocal8Bit().toStdString();
 			}
-			else if (iter->value.IsDouble()) {
-				*v = GetJsonString((Value&)iter->value);
-			}*/
+			else if (iter->isArray()) {
+				*v = QJsonDocument(iter->toArray()).toJson(QJsonDocument::Compact);
+			}
+			else if (iter->isObject()) {
+				*v = QJsonDocument(iter->toObject()).toJson(QJsonDocument::Compact);
+			}
+			else if (iter->isUndefined()) {
+				*v = "undefined";
+			}
 			else {
-				*v = GetJsonString((Value&)iter->value);
+				*v = "";
 			}
 		}
 		else {
-			*vType = kStringType;
+			*vType = QJsonValue::String;
 			*v = "";
 		}
 	}
 
-	//vector<string> GetStringArray() {
-	//	vector<string> rs;
-	//	for (auto iter = json->Begin(); iter != json->End(); ++iter)
-	//	{
-	//		rs.push_back(iter->GetString());
-	//	}
-	//	return rs;
-	//}
-
 	vector<string> GetAllKeys() {
 		vector<string> keys;
-		for (auto iter = json->MemberBegin(); iter != json->MemberEnd(); ++iter)
+		for (auto iter = json->begin(); iter != json->end(); ++iter)
 		{
-			keys.push_back((iter->name).GetString());
+			keys.push_back(iter.key().toStdString());
 		}
 		return keys;
 	}
 
 	bool IsObject() {
-		return json->IsObject();
-	}
-
-	string GetJsonString() {
-		StringBuffer strBuffer;
-		Writer<StringBuffer> writer(strBuffer);
-		json->Accept(writer);
-		return strBuffer.GetString();
+		return _IsObject_;
 	}
 
 	~Rjson() {
@@ -274,15 +199,15 @@ public:
 	}
 
 private:
-	Document* GetOriginRapidJson() {
+	QJsonObject* GetOriginRapidJson() {
 		return json;
 	}
 
-	string GetJsonString(Value& v) {
-		StringBuffer strBuffer;
-		Writer<StringBuffer> writer(strBuffer);
-		v.Accept(writer);
-		return strBuffer.GetString();
+	QString GetJsonQString(QJsonObject& v) {
+		return QString(QJsonDocument(v).toJson(QJsonDocument::Compact));
 	}
 
+	string GetJsonString(QJsonObject& v) {
+		return QString(QJsonDocument(v).toJson(QJsonDocument::Compact)).toStdString();
+	}
 };

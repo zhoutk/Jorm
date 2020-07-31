@@ -1,4 +1,5 @@
 #pragma once
+#include <assert.h>
 #include "../common/Idb/Idb.h"
 #include "../thirds/sqlit3/sqlite3.h"
 #include "../common/Utils/Utils.h"
@@ -332,11 +333,11 @@ namespace Sqlit3 {
 								return Utils::MakeJsonObjectForFuncReturn(STPARAMERR, "not equal value is wrong.");
 							}
 						}
-						else if (!fuzzy.empty() && vType == kStringType) {
+						else if (!fuzzy.empty() && vType == QJsonValue::String) {
 							where.append(k).append(" like '%").append(v).append("%'");
 						}
 						else {
-							if (vType == kNumberType)
+							if (vType == QJsonValue::Double)
 								where.append(k).append(" = ").append(v);
 							else
 								where.append(k).append(" = '").append(v).append("'");
@@ -479,11 +480,13 @@ namespace Sqlit3 {
 							al.AddValueString(k, "");
 						}
 					}
+					cout << al.GetJsonString() << endl;
 					arr.push_back(al);
 				}
 				if (arr.empty())
 					rs.ExtendObject(Utils::MakeJsonObjectForFuncReturn(STQUERYEMPTY));
 				rs.AddValueObjectArray("data", arr);
+				cout << rs.GetJsonString() << endl;
 			}
 			sqlite3_finalize(stmt);
 			cout << "SQL: " << aQuery << endl;
