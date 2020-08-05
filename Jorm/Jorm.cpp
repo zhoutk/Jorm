@@ -22,7 +22,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	rs.GetValueAndTypeByKey("code", &v1, &vType);
 	
 	//cout << rs.GetJsonString();
-	assert(atoi(v1.c_str()), (int)STSUCCESS);
+	//assert(atoi(v1.c_str()), (int)STSUCCESS);
 
 	/*string jsonStr = "{\"id\":123, \"username\":\"zhoutk\", \"dd\":[{\"subitem\":\"a item\"},{\"subitem2\":\"second item\"}]}";
 	Rjson obj(jsonStr);
@@ -40,8 +40,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//DbBase* db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
 	//DbBase* db = new DbBase("localhost", "root", "123456", "jorm");
-	//DbBase* db = new DbBase("dbname = Jorm user = root password = 123456 \
-      hostaddr = 127.0.0.1 port = 5432", "Postgres");
+	//DbBase* db = new DbBase("dbname = Jorm user = root password = 123456 hostaddr = 127.0.0.1 port = 5432", "Postgres");
 
 	//DbBase* db = new DbBase("HR", "a1b2c3", "127.0.0.1:1521/xe");
 
