@@ -138,22 +138,31 @@ public:
 	{
 		if (szU8 == nullptr || strlen(szU8) == 0)
 			return "";
-		//UTF8 to Unicode
-		//预转换，得到所需空间的大小
-		int wcsLen = ::MultiByteToWideChar(CP_UTF8, NULL, szU8, strlen(szU8), NULL, 0);
-		//分配空间要给'\0'留个空间，MultiByteToWideChar不会给'\0'空间
-		wchar_t* wszString = new wchar_t[wcsLen + 1];
-		//转换
-		::MultiByteToWideChar(CP_UTF8, NULL, szU8, strlen(szU8), wszString, wcsLen);
-		//最后加上'\0'
-		wszString[wcsLen] = '\0';
+		QString sz = QString::fromUtf8(szU8);
+		string tt = sz.toLocal8Bit().toStdString();
+		int len = tt.size();
+		char* dd = new char(len + 1);
+		memset(dd, 0, len + 1);
+		memcpy(dd, tt.c_str(), len);
+		return dd;
 
-		char* m_char;
-		int len = WideCharToMultiByte(CP_ACP, 0, wszString, wcslen(wszString), NULL, 0, NULL, NULL);
-		m_char = new char[len + 1];
-		WideCharToMultiByte(CP_ACP, 0, wszString, wcslen(wszString), m_char, len, NULL, NULL);
-		m_char[len] = '\0';
-		return m_char;
+
+		////UTF8 to Unicode
+		////预转换，得到所需空间的大小
+		//int wcsLen = ::MultiByteToWideChar(CP_UTF8, NULL, szU8, strlen(szU8), NULL, 0);
+		////分配空间要给'\0'留个空间，MultiByteToWideChar不会给'\0'空间
+		//wchar_t* wszString = new wchar_t[wcsLen + 1];
+		////转换
+		//::MultiByteToWideChar(CP_UTF8, NULL, szU8, strlen(szU8), wszString, wcsLen);
+		////最后加上'\0'
+		//wszString[wcsLen] = '\0';
+
+		//char* m_char;
+		//int len = WideCharToMultiByte(CP_ACP, 0, wszString, wcslen(wszString), NULL, 0, NULL, NULL);
+		//m_char = new char[len + 1];
+		//WideCharToMultiByte(CP_ACP, 0, wszString, wcslen(wszString), m_char, len, NULL, NULL);
+		//m_char[len] = '\0';
+		//return m_char;
 	}
 
 	static char* UnicodeToU8(string str)
@@ -190,6 +199,11 @@ public:
 
 	static wchar_t* multiByteToWideChar(const string& pKey)
 	{
+		//QString sz = QString::fromLocal8Bit(pKey.c_str());
+		//wchar_t* pw = new wchar_t[64];
+		//int tt = sz.toWCharArray(pw);
+		//return pw;
+
 		char* pCStrKey = (char *)pKey.c_str();
 		//第一次调用返回转换后的字符串长度，用于确认为wchar_t*开辟多大的内存空间
 		int pSize = MultiByteToWideChar(CP_OEMCP, 0, pCStrKey, strlen(pCStrKey) + 1, NULL, 0);
