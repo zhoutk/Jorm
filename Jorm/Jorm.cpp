@@ -16,7 +16,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//cout << qObj.GetJsonString();
 
-	Rjson rs = db->select("users", qObj, Utils::MakeVectorInitFromString("username"));
+	Rjson rs = db->select("users", qObj/*, Utils::MakeVectorInitFromString("username")*/);
 	string v1;
 	int vType;
 	rs.GetValueAndTypeByKey("code", &v1, &vType);
