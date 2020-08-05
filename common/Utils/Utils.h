@@ -5,6 +5,7 @@
 #include <time.h>
 #include "GlobalConstants.h"
 #include <algorithm>
+#include <QString>
 
 class Utils {
 public:
@@ -157,7 +158,19 @@ public:
 
 	static char* UnicodeToU8(string str)
 	{
-		if (str.size() == 0)
+		QString sz = QString::fromLocal8Bit(str.c_str());
+		string tt = sz.toStdString();
+		int len = tt.size();
+		char* dd = new char(len + 1);
+		memset(dd, 0, len + 1);
+		memcpy(dd, tt.c_str(), len);
+		return dd; 
+
+		/*string tt = sz.toStdString();
+		char* dd = (char*)tt.c_str();
+		return dd;*/
+
+		/*if (str.size() == 0)
 			return "";
 		wchar_t* wszString = multiByteToWideChar(str);
 		// unicode to UTF8
@@ -171,7 +184,7 @@ public:
 		::WideCharToMultiByte(CP_UTF8, NULL, wszString, wcslen(wszString), szU8, u8Len, NULL, NULL);
 		//最后加上'\0'
 		szU8[u8Len] = '\0';
-		return szU8;
+		return szU8;*/
 	}
 
 

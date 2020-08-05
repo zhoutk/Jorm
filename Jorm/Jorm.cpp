@@ -12,7 +12,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	DbBase* db = new DbBase("D:\\codes\\Jorm\\Sqlit3\\db.db");
 	Rjson qObj;
-	//qObj.AddValueInt("id", 11);
+	qObj.AddValueString("username", "уехЩ");
 
 	//cout << qObj.GetJsonString();
 
