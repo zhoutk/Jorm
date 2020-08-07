@@ -136,14 +136,12 @@ public:
 
 	static char* U8ToUnicode(char* szU8)
 	{
-		if (szU8 == nullptr || strlen(szU8) == 0)
-			return "";
 		QString sz = QString::fromUtf8(szU8);
-		string tt = sz.toLocal8Bit().toStdString();
+		QByteArray tt = sz.toLocal8Bit();
 		int len = tt.size();
 		char* dd = new char[len + 1];
 		memset(dd, 0, len + 1);
-		memcpy(dd, tt.c_str(), len);
+		memcpy(dd, tt.data(), len);
 		return dd;
 
 
